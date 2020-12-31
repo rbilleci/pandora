@@ -2,23 +2,8 @@ from abc import ABC
 from datetime import datetime
 from logging import info
 from typing import Optional
-
+from core_constants import *
 import pandas as pd
-
-MISSING_INDICATOR_SUFFIX = '_missing'
-
-# common fields
-GEO_ID = 'geo_id'
-COUNTRY = 'country_name'
-REGION = 'region_name'
-DATE = 'date'
-YEAR = 'year'
-QUARTER = 'quarter'
-MONTH = 'month'
-WEEK = 'week'
-DAY_OF_WEEK = 'day_of_week'
-DAY_OF_MONTH = 'day_of_month'
-DAY_OF_YEAR = 'day_of_year'
 
 
 class Imputation:
@@ -180,11 +165,6 @@ class Data:
         # load and impute
         df_new = Data.explode(Data.load(data_source), self._datetime_index)
 
-        """ temp """
-        """
-        df_new = Data.mark_missing(data_source, df_new)
-        df_new = Data.impute(data_source, df_new)
-        """
         # merge
         self._df = self._df.merge(df_new,
                                   on=list({COUNTRY, REGION, DATE}.intersection(df_new)),

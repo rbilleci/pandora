@@ -1,6 +1,7 @@
 import pathlib
 
-from dataset import Nominal, DataSource, COUNTRY
+from core_types import Nominal, DataSource
+from core_constants import *
 
 CONTINENT = 'continent_name'
 LOCATION = f"{pathlib.Path(__file__).parent.absolute()}/geo_continent.csv"

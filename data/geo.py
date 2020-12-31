@@ -1,8 +1,8 @@
 import pathlib
 from calendar import monthrange, isleap
 
-from dataset import Numeric, DataSource, Nominal, Date, DATE, GEO_ID, COUNTRY, REGION, YEAR, QUARTER, MONTH, WEEK, \
-    DAY_OF_WEEK, DAY_OF_MONTH, DAY_OF_YEAR
+from core_types import Numeric, DataSource, Nominal, Date
+from core_constants import *
 
 
 def scale_week_of_year(row):

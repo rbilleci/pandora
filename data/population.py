@@ -1,7 +1,8 @@
 import pathlib
 
-from dataset import Numeric, COUNTRY, REGION, YEAR, DataSource, Nominal, Imputation
-from imputers import *
+from core_types import Numeric, DataSource, Nominal, Imputation
+from core_imputers import *
+from core_constants import *
 
 population_density_imputations = [
     Imputation(impute_with_max, [REGION, COUNTRY]),  # fallback to max for the same country and region
