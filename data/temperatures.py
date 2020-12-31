@@ -1,7 +1,7 @@
 import pathlib
 
-from dataset import Numeric, impute_with_mean, QUARTER, YEAR, REGION, COUNTRY, DataSource, Nominal, Date, DATE, \
-    Imputation
+from dataset import Numeric, QUARTER, YEAR, REGION, COUNTRY, DataSource, Nominal, Date, DATE, Imputation
+from imputers import *
 
 LOCATION = f"{pathlib.Path(__file__).parent.absolute()}/temperatures.csv"
 

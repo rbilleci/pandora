@@ -4,7 +4,7 @@ from logging import info
 import pandas as pd
 
 import dataset
-from dataset import SUFFIX_MISSING
+from dataset import MISSING_INDICATOR_SUFFIX
 
 
 def clean(data: dataset.Data) -> None:
@@ -19,7 +19,7 @@ def mark_missing(data: dataset.Data) -> None:
     for field in data.fields:
         if field.name in data.df and field.mark_missing:
             info(f"marking missing values for column: {field.name}")
-            data.df[f"{field.name}{SUFFIX_MISSING}"] = data.df[field.name].isna()
+            data.df[f"{field.name}{MISSING_INDICATOR_SUFFIX}"] = data.df[field.name].isna()
 
 
 def impute(data: dataset.Data) -> None:

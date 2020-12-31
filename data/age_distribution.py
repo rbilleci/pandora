@@ -1,6 +1,7 @@
 import pathlib
 
-from dataset import impute_with_mean, Numeric, COUNTRY, YEAR, REGION, DataSource, Nominal, Imputation
+from dataset import Numeric, COUNTRY, YEAR, REGION, DataSource, Nominal, Imputation
+from imputers import *
 
 imputations = [
     Imputation(impute_with_mean, [YEAR, COUNTRY]),  # fallback to country average for the year

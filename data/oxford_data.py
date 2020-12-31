@@ -4,10 +4,8 @@ import re
 import urllib.request
 from datetime import datetime
 
-import pandas as pd
-
-from dataset import Numeric, Ordinal, REGION, COUNTRY, DataSource, DATE, Nominal, Date, impute_with_forward_fill, \
-    Imputation
+from dataset import Numeric, Ordinal, REGION, COUNTRY, DataSource, DATE, Nominal, Date, Imputation
+from imputers import *
 
 EXTERNAL_LOCATION = "https://github.com/OxCGRT/covid-policy-tracker/raw/master/data/OxCGRT_latest.csv"
 FILE = "oxford_data.csv"
