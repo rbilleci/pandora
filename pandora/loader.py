@@ -12,7 +12,7 @@ from pandora.core_types import Numeric, Ordinal, Nominal, Boolean, Date
 def load(start_date: datetime.date,
          end_date: datetime.date,
          geos: {},
-         data_sources: [{}]) -> (pd.DataFrame, {}):
+         data_sources: [{}]) -> (pd.DataFrame, dict):
     info('loading geos')
     datetime_index = pd.date_range(start_date, end_date, freq='D')
     df = expand(load_source(geos), datetime_index)
@@ -37,9 +37,9 @@ def load(start_date: datetime.date,
 
 
 def merge(df: pd.DataFrame,
-          schema: {},
+          schema: dict,
           data_source: {},
-          datetime_index: pd.DatetimeIndex) -> (pd.DataFrame, {}):
+          datetime_index: pd.DatetimeIndex) -> (pd.DataFrame, dict):
     info(f"merging {data_source.LOCATION}")
     df_new = expand(load_source(data_source), datetime_index)
     df = df.merge(df_new,
