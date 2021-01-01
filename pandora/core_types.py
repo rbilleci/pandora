@@ -16,10 +16,9 @@ class Imputation:
 
 
 class Field(ABC):
-    def __init__(self, datatype, imputations: [Imputation], mark_missing: bool):
+    def __init__(self, imputations: [Imputation], mark_missing: bool):
         self._mark_missing = mark_missing
         self._imputations = imputations
-        self._datatype = datatype
 
     @property
     def imputations(self) -> [Imputation]:
@@ -29,19 +28,15 @@ class Field(ABC):
     def mark_missing(self) -> bool:
         return self._mark_missing
 
-    @property
-    def datatype(self) -> str:
-        return self._datatype
-
 
 class Date(Field):
     def __init__(self, imputations: [Imputation] = None, mark_missing=False):
-        super().__init__('datetime64', imputations, mark_missing)
+        super().__init__(imputations, mark_missing)
 
 
 class Ordinal(Field):
     def __init__(self, minimum, maximum, imputations: [Imputation] = None, mark_missing=False):
-        super().__init__('int32', imputations, mark_missing)
+        super().__init__(imputations, mark_missing)
         self._minimum = minimum
         self._maximum = maximum
 
@@ -56,7 +51,7 @@ class Ordinal(Field):
 
 class Numeric(Field):
     def __init__(self, minimum, maximum, imputations: [Imputation] = None, mark_missing=False):
-        super().__init__('float64', imputations, mark_missing)
+        super().__init__(imputations, mark_missing)
         self._minimum = minimum
         self._maximum = maximum
 
@@ -71,9 +66,9 @@ class Numeric(Field):
 
 class Nominal(Field):
     def __init__(self, imputations: [Imputation] = None, mark_missing=False):
-        super().__init__('str', imputations, mark_missing)
+        super().__init__(imputations, mark_missing)
 
 
 class Boolean(Field):
     def __init__(self, imputations: [Imputation] = None, mark_missing=False):
-        super().__init__('bool', imputations, mark_missing)
+        super().__init__(imputations, mark_missing)
