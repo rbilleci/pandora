@@ -2,7 +2,7 @@ from abc import ABC
 from datetime import datetime
 from logging import info
 from typing import Optional
-from pandora.constants import *
+from pandora.core_fields import *
 import pandas as pd
 
 

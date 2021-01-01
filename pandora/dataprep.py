@@ -3,8 +3,8 @@ from logging import info
 
 import pandas as pd
 
-from pandora.types import Data, Field, Ordinal, Boolean, Numeric
-from pandora.constants import *
+from pandora.core_types import Data, Field, Ordinal, Boolean, Numeric
+from pandora.core_fields import *
 
 
 def clean(data: Data) -> None:

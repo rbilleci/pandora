@@ -7,7 +7,7 @@ import data.oxford_data as oxford
 import data.population as population
 import data.temperatures as temperatures
 from data import geo, geo_continent
-from pandora.types import Data
+from pandora.core_types import Data
 
 basicConfig(level=INFO, format='%(asctime)s\t%(levelname)s\t%(filename)s\t%(message)s')
 

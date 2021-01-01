@@ -1,12 +1,12 @@
 import os
 import pathlib
-import re
 import urllib.request
 from datetime import datetime
-
-from pandora.types import Numeric, Ordinal, DataSource, Nominal, Date, Imputation
-from pandora.imputers import *
-from pandora.constants import *
+import pandas as pd
+from pandora.core_types import Numeric, Ordinal, DataSource, Nominal, Date, Imputation
+from pandora.core_imputers import impute_with_forward_fill
+from pandora.core_fields import *
+import re
 
 EXTERNAL_LOCATION = "https://github.com/OxCGRT/covid-policy-tracker/raw/master/data/OxCGRT_latest.csv"
 FILE = "oxford_data.csv"

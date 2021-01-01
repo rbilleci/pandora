@@ -1,7 +1,7 @@
 import pathlib
 
-from pandora.types import Nominal, DataSource
-from pandora.constants import *
+from pandora.core_types import Nominal, DataSource
+from pandora.core_fields import *
 
 CONTINENT = 'continent_name'
 LOCATION = f"{pathlib.Path(__file__).parent.absolute()}/geo_continent.csv"

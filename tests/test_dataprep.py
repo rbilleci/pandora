@@ -8,16 +8,16 @@ import data.age_distribution as age_dist
 import data.oxford_data as oxford
 import data.population as population
 import data.temperatures as temperatures
-from pandora import cleaner
-from pandora.types import Data
+from pandora import dataprep
+from pandora.core_types import Data
 from data import geo, geo_continent
 
 basicConfig(level=INFO, format='%(asctime)s\t%(levelname)s\t%(filename)s\t%(message)s')
 
 
-class DataCleanerTestCase(unittest.TestCase):
+class DataPrepTestCase(unittest.TestCase):
 
-    def test_datacleaner(self):
+    def test_dataprep(self):
         self.assertTrue(True)
         start_date = date(2020, 1, 1)
         end_date = date(2021, 6, 30)
@@ -37,7 +37,7 @@ class DataCleanerTestCase(unittest.TestCase):
         pd.options.display.max_rows = None
         pd.options.display.max_info_columns = 1000
 
-        cleaner.clean(data)
+        dataprep.clean(data)
         df = data.df
 
         df.info()
