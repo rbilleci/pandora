@@ -6,8 +6,8 @@
 
 The following geographic fields are available to represent your data:
 
-* **country_name**, or **CountryName**
-* **region_name**, or **RegionName**
+* **country_name**
+* **region_name**
 
 Along with the above fields, system will automatically derive a **continent** field that may be used in your machine
 learning model.
@@ -16,16 +16,14 @@ learning model.
 
 The following date fields can be specified in a record:
 
-* **date**, or **Date** - specifies the date for a record. Valid values are in ISO format: YYYY-MM-DD.
-* **year**, or **Year** - specifies the year for a record. Valid values are from 0-4000 AD.
-* **quarter**, or **Quarter** - specifies the quarter for a record. Valid values are from 1-4.
-* **month**, or **Month** - specifies the month number for a record. Valid values are from 1-12.
-* **week**, or **Week** - used to specify the week number for a record. Valid values are from 1-53
-* **day_of_year**, or **DayOfYear** - used to specify the day of year for the record. Valid values are from 1-365, or
-  1-366 for leap years.
-* **day_of_month**, or **DayOfMonth** - used to specify the day of month for a record.
-* **day_of_week**, or **DayOfWeek** - used to specify the day of a given week. Valid values are from 1-7, where 1 =
-  Monday and 7 = Sunday
+* **date** - specifies the date for a record. Valid values are in ISO format: YYYY-MM-DD.
+* **year** - specifies the year for a record. Valid values are from 0-4000 AD.
+* **quarter** - specifies the quarter for a record. Valid values are from 1-4.
+* **month**- specifies the month number for a record. Valid values are from 1-12.
+* **week** - used to specify the week number for a record. Valid values are from 1-53
+* **day_of_year**- used to specify the day of year for the record. Valid values are from 1-365, or 1-366 for leap years.
+* **day_of_month** - used to specify the day of month for a record.
+* **day_of_week** - used to specify the day of a given week. Valid values are from 1-7, where 1 = Monday and 7 = Sunday
 
 Depending on the type of data you are merging into your dataset, you may use different fields.
 
