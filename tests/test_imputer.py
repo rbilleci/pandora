@@ -31,7 +31,7 @@ class DataPrepTestCase(unittest.TestCase):
                                   age_dist,
                                   temperatures,
                                   oxford])
-        df, schema = imputer.clean(df, schema)
+        df, schema = imputer.impute(df, schema)
         df.info()
         print(df.describe())
         print(df.isna().any())
