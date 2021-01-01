@@ -1,18 +1,18 @@
 from datetime import datetime
 from logging import info
-from typing import Optional
+from typing import Optional, Dict
 
 import pandas as pd
 
 from pandora.core_fields import COUNTRY, REGION, WEEK, MONTH, QUARTER, YEAR, DAY_OF_MONTH, DAY_OF_WEEK, \
     DAY_OF_YEAR, DATE, CORE_FIELDS
-from pandora.core_types import Numeric, Ordinal, Nominal, Boolean, Date
+from pandora.core_types import Numeric, Ordinal, Nominal, Boolean, Date, Field
 
 
 def load(start_date: datetime.date,
          end_date: datetime.date,
          geos: {},
-         data_sources: [{}]) -> (pd.DataFrame, dict):
+         data_sources: [{}]) -> (pd.DataFrame, Dict[str, Field]):
     info('loading geos')
     datetime_index = pd.date_range(start_date, end_date, freq='D')
     df = expand(load_source(geos), datetime_index)
@@ -37,9 +37,9 @@ def load(start_date: datetime.date,
 
 
 def merge(df: pd.DataFrame,
-          schema: dict,
+          schema: Dict[str, Field],
           data_source: {},
-          datetime_index: pd.DatetimeIndex) -> (pd.DataFrame, dict):
+          datetime_index: pd.DatetimeIndex) -> (pd.DataFrame, Dict[str, Field]):
     info(f"merging {data_source.LOCATION}")
     df_new = expand(load_source(data_source), datetime_index)
     df = df.merge(df_new,

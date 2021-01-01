@@ -1,13 +1,14 @@
 import inspect
 from logging import info
+from typing import Dict
 
 import pandas as pd
 
 from pandora.core_fields import MISSING_INDICATOR_SUFFIX
-from pandora.core_types import Ordinal, Boolean, Imputation, Numeric
+from pandora.core_types import Ordinal, Boolean, Imputation, Numeric, Field
 
 
-def impute(df: pd.DataFrame, schema: dict) -> (pd.DataFrame, dict):
+def impute(df: pd.DataFrame, schema: Dict[str, Field]) -> (pd.DataFrame, Dict[str, Field]):
     df, schema = mark_missing(df, schema)
     df, schema = impute_df(df, schema)
     df = df.reindex(sorted(df.columns), axis=1)
@@ -16,7 +17,8 @@ def impute(df: pd.DataFrame, schema: dict) -> (pd.DataFrame, dict):
     return df, schema
 
 
-def mark_missing(df: pd.DataFrame, schema: dict) -> (pd.DataFrame, dict):
+def mark_missing(df: pd.DataFrame,
+                 schema: Dict[str, Field]) -> (pd.DataFrame, Dict[str, Field]):
     for name in df:
         if name in schema and schema[name].mark_missing:
             info(f"marking missing values for column: {name}")
@@ -24,7 +26,8 @@ def mark_missing(df: pd.DataFrame, schema: dict) -> (pd.DataFrame, dict):
     return df, schema
 
 
-def impute_df(df: pd.DataFrame, schema: dict) -> (pd.DataFrame, dict):
+def impute_df(df: pd.DataFrame,
+              schema: Dict[str, Field]) -> (pd.DataFrame, Dict[str, Field]):
     for name in df:
         if name in schema and schema[name].imputations:
             info(f"imputing {name}")
@@ -34,7 +37,10 @@ def impute_df(df: pd.DataFrame, schema: dict) -> (pd.DataFrame, dict):
     return df, schema
 
 
-def impute_df_series(df: pd.DataFrame, schema: dict, name: str, imputation: Imputation) -> (pd.DataFrame, dict):
+def impute_df_series(df: pd.DataFrame,
+                     schema: Dict[str, Field],
+                     name: str,
+                     imputation: Imputation) -> (pd.DataFrame, Dict[str, Field]):
     if imputation.keys:
         return df.groupby(imputation.keys).apply(
             lambda group: impute_df_series_by_group(group, name, imputation.function)).reset_index(drop=True), schema
@@ -47,7 +53,7 @@ def impute_df_series_by_group(group, name, function) -> pd.DataFrame:
     return group
 
 
-def validate(df: pd.DataFrame, schema: dict) -> None:
+def validate(df: pd.DataFrame, schema: Dict[str, Field]) -> None:
     info(f"validating fields")
     for name in df:
         # validate N/As / nulls
@@ -63,7 +69,7 @@ def validate(df: pd.DataFrame, schema: dict) -> None:
                     raise ValueError(f"{name} has values less than minimum allowed")
 
 
-def coerce_types(df: pd.DataFrame, schema: dict) -> None:
+def coerce_types(df: pd.DataFrame, schema: Dict[str, Field]) -> None:
     for name in df:
         if name in schema:
             field = schema[name]
