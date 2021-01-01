@@ -1,0 +1,181 @@
+country_name,iso_3166_numeric,iso_3166_2,iso_3166_3
+Afghanistan,004,AF,AFG
+Albania,008,AL,ALB
+Algeria,012,DZ,DZA
+Andorra,020,AD,AND
+Angola,024,AO,AGO
+Argentina,032,AR,ARG
+Aruba,533,AW,ABW
+Australia,036,AU,AUS
+Austria,040,AT,AUT
+Azerbaijan,031,AZ,AZE
+Bahamas,044,BS,BHS
+Bahrain,048,BH,BHR
+Bangladesh,050,BD,BGD
+Barbados,052,BB,BRB
+Belarus,112,BY,BLR
+Belgium,056,BE,BEL
+Belize,084,BZ,BLZ
+Benin,204,BJ,BEN
+Bermuda,060,BM,BMU
+Bhutan,064,BT,BTN
+Bolivia,068,BO,BOL
+Bosnia and Herzegovina,070,BA,BIH
+Botswana,072,BW,BWA
+Brazil,076,BR,BRA
+Brunei,096,BN,BRN
+Bulgaria,100,BG,BGR
+Burkina Faso,854,BF,BFA
+Burundi,108,BI,BDI
+Cambodia,116,KH,KHM
+Cameroon,120,CM,CMR
+Canada,124,CA,CAN
+Cape Verde,132,CV,CPV
+Central African Republic,140,CF,CAF
+Chad,148,TD,TCD
+Chile,152,CL,CHL
+China,156,CN,CHN
+Colombia,170,CO,COL
+Comoros,174,KM,COM
+Congo,178,CG,COG
+Costa Rica,188,CR,CRI
+Cote d'Ivoire,384,CI,CIV
+Croatia,191,HR,HRV
+Cuba,192,CU,CUB
+Cyprus,196,CY,CYP
+Czech Republic,203,CZ,CZE
+Democratic Republic of Congo,180,CD,COD
+Denmark,208,DK,DNK
+Djibouti,262,DJ,DJI
+Dominica,212,DM,DMA
+Dominican Republic,214,DO,DOM
+Ecuador,218,EC,ECU
+Egypt,818,EG,EGY
+El Salvador,222,SV,SLV
+Eritrea,232,ER,ERI
+Estonia,233,EE,EST
+Eswatini,748,SZ,SWZ
+Ethiopia,231,ET,ETH
+Faeroe Islands,234,FO,FRO
+Fiji,242,FJ,FJI
+Finland,246,FI,FIN
+France,250,FR,FRA
+Gabon,266,GA,GAB
+Gambia,270,GM,GMB
+Georgia,268,GE,GEO
+Germany,276,DE,DEU
+Ghana,288,GH,GHA
+Greece,300,GR,GRC
+Greenland,304,GL,GRL
+Guam,316,GU,GUM
+Guatemala,320,GT,GTM
+Guinea,324,GN,GIN
+Guyana,328,GY,GUY
+Haiti,332,HT,HTI
+Honduras,340,HN,HND
+Hong Kong,344,HK,HKG
+Hungary,348,HU,HUN
+Iceland,352,IS,ISL
+India,356,IN,IND
+Indonesia,360,ID,IDN
+Iran,364,IR,IRN
+Iraq,368,IQ,IRQ
+Ireland,372,IE,IRL
+Israel,376,IL,ISR
+Italy,380,IT,ITA
+Jamaica,388,JM,JAM
+Japan,392,JP,JPN
+Jordan,400,JO,JOR
+Kazakhstan,398,KZ,KAZ
+Kenya,404,KE,KEN
+Kosovo,9000,XK,XKX
+Kuwait,414,KW,KWT
+Kyrgyz Republic,417,KG,KGZ
+Laos,418,LA,LAO
+Latvia,428,LV,LVA
+Lebanon,422,LB,LBN
+Lesotho,426,LS,LSO
+Liberia,430,LR,LBR
+Libya,434,LY,LBY
+Lithuania,440,LT,LTU
+Luxembourg,442,LU,LUX
+Macao,446,MO,MAC
+Madagascar,450,MG,MDG
+Malawi,454,MW,MWI
+Malaysia,458,MY,MYS
+Mali,466,ML,MLI
+Mauritania,478,MR,MRT
+Mauritius,480,MU,MUS
+Mexico,484,MX,MEX
+Moldova,498,MDA,MDA
+Monaco,492,MC,MCO
+Mongolia,496,MN,MNG
+Morocco,504,MA,MAR
+Mozambique,508,MZ,MOZ
+Myanmar,104,MM,MMR
+Namibia,516,NA,NAM
+Nepal,524,NP,NPL
+Netherlands,528,NL,NLD
+New Zealand,554,NZ,NZL
+Nicaragua,558,NI,NIC
+Niger,562,NE,NER
+Nigeria,566,NG,NGA
+Norway,578,NO,NOR
+Oman,512,OM,OMN
+Pakistan,586,PK,PAK
+Palestine,275,PS,PSE
+Panama,591,PA,PAN
+Papua New Guinea,598,PG,PNG
+Paraguay,600,PY,PRY
+Peru,604,PE,PER
+Philippines,608,PH,PHL
+Poland,616,PL,PL
+Portugal,620,PR,PRT
+Puerto Rico,630,PR,PRI
+Qatar,634,QA,QAT
+Romania,642,RO,ROU
+Russia,643,RU,RUS
+Rwanda,646,RW,RWA
+San Marino,674,SM,SMR
+Saudi Arabia,682,SA,SAU
+Senegal,686,SN,SEN
+Serbia,688,RS,SRB
+Seychelles,690,SC,SYC
+Sierra Leone,694,SL,SLE
+Singapore,702,SG,SGP
+Slovak Republic,703,SK,SVK
+Slovenia,705,SI,SVN
+Solomon Islands,090,SB,SLB
+Somalia,706,SO,SOM
+South Africa,710,ZA,ZAF
+South Korea,410,KR,KOR
+South Sudan,728,SS,SSD
+Spain,724,ES,ESP
+Sri Lanka,144,LK,LKA
+Sudan,729,SD,SDN
+Suriname,740,SR,SUR
+Sweden,752,SW,SWE
+Switzerland,756,CH,CHE
+Syria,760,SY,SYR
+Taiwan,158,TW,TWN
+Tajikistan,762,TJ,TJK
+Tanzania,834,TZ,TZA
+Thailand,764,TH,THA
+Timor-Leste,626,TL,TLS
+Togo,768,TG,TGO
+Trinidad and Tobago,780,TT,TTO
+Tunisia,788,TN,TUN
+Turkey,792,TR,TUR
+Uganda,800,UG,UGA
+Ukraine,804,UA,UKR
+United Arab Emirates,784,AW,ARE
+United Kingdom,826,GB,GBR
+United States,840,US,USA
+Uruguay,858,UY,URY
+Uzbekistan,860,UZ,UZB
+Vanuatu,548,VU,VUT
+Venezuela,862,VE,VEN
+Vietnam,704,VN,VNM
+Yemen,887,YE,YEM
+Zambia,894,ZM,ZMB
+Zimbabwe,716,ZW,ZWE
