@@ -1,8 +1,8 @@
 import pathlib
 
-from pandora.core_types import Numeric, DataSource, Nominal, Imputation
-from pandora.core_imputers import impute_with_mean, impute_with_max
-from pandora.core_fields import *
+from pandora.core_types import Numeric, Nominal, Imputation
+from pandora.imputers import impute_with_mean, impute_with_max
+from pandora.core_fields import COUNTRY, REGION, YEAR
 
 population_density_imputations = [
     Imputation(impute_with_max, [REGION, COUNTRY]),  # fallback to max for the same country and region
@@ -52,13 +52,14 @@ PNEUMONIA_DEATHS_PER_100K = 'pneumonia_deaths_per_100k'
 
 LOCATION = f"{pathlib.Path(__file__).parent.absolute()}/population.csv"
 
-data_source = DataSource(LOCATION, [
-    Nominal(COUNTRY),
-    Nominal(REGION),
-    Numeric(POPULATION, 0.0, 2e9, imputations=population_imputations),
-    Numeric(POPULATION_DENSITY, 0.0, 1e5, imputations=population_density_imputations),
-    Numeric(POPULATION_PERCENT_URBAN, 0.0, 100.0, imputations=population_percent_urban_imputations),
-    Numeric(GDP_PER_CAPITA, 0.0, 1e6, imputations=gdp_per_capita_imputations),
-    Numeric(OBESITY_RATE, 0.0, 100.0, imputations=obesity_rate_imputations),
-    Numeric(PNEUMONIA_DEATHS_PER_100K, 0.0, 1e4, imputations=pneumonia_deaths_per_100k_imputations),
-])
+FIELDS = {
+    COUNTRY: Nominal(),
+    REGION: Nominal(),
+    YEAR: Numeric(-1e4, 1e4),
+    POPULATION: Numeric(0.0, 2e9, imputations=population_imputations),
+    POPULATION_DENSITY: Numeric(0.0, 1e5, imputations=population_density_imputations),
+    POPULATION_PERCENT_URBAN: Numeric(0.0, 100.0, imputations=population_percent_urban_imputations),
+    GDP_PER_CAPITA: Numeric(0.0, 1e6, imputations=gdp_per_capita_imputations),
+    OBESITY_RATE: Numeric(0.0, 100.0, imputations=obesity_rate_imputations),
+    PNEUMONIA_DEATHS_PER_100K: Numeric(0.0, 1e4, imputations=pneumonia_deaths_per_100k_imputations)
+}

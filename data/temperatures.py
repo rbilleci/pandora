@@ -1,10 +1,8 @@
 import pathlib
 
-from pandora.core_types import Numeric, DataSource, Nominal, Imputation, Date
-from pandora.core_imputers import impute_with_mean
-from pandora.core_fields import *
-
-LOCATION = f"{pathlib.Path(__file__).parent.absolute()}/temperatures.csv"
+from pandora.core_fields import COUNTRY, REGION, DATE, QUARTER, YEAR
+from pandora.imputers import impute_with_mean
+from pandora.core_types import Numeric, Imputation, Nominal, Date
 
 imputations = [
     Imputation(impute_with_mean, [QUARTER, YEAR, REGION, COUNTRY]),
@@ -21,10 +19,12 @@ imputations = [
 TEMPERATURE = 'temperature'
 SPECIFIC_HUMIDITY = 'specific_humidity'
 
-data_source = DataSource(LOCATION, [
-    Nominal(COUNTRY),
-    Nominal(REGION),
-    Date(DATE),
-    Numeric(TEMPERATURE, 0.0, 500, imputations=imputations),
-    Numeric(SPECIFIC_HUMIDITY, 0.0, 0.10, imputations=imputations)
-])
+FIELDS = {
+    COUNTRY: Nominal(),
+    REGION: Nominal(),
+    DATE: Date(),
+    TEMPERATURE: Numeric(0.0, 500.0, imputations=imputations),
+    SPECIFIC_HUMIDITY: Numeric(0.0, 0.10, imputations=imputations)
+}
+
+LOCATION = f"{pathlib.Path(__file__).parent.absolute()}/temperatures.csv"
