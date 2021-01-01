@@ -1,8 +1,8 @@
 import pathlib
 
-from core_types import Numeric, DataSource, Nominal, Imputation
-from core_imputers import *
-from core_constants import *
+from pandora.types import Numeric, DataSource, Nominal, Imputation
+from pandora.imputers import *
+from pandora.constants import *
 
 population_density_imputations = [
     Imputation(impute_with_max, [REGION, COUNTRY]),  # fallback to max for the same country and region

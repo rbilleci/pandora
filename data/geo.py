@@ -1,8 +1,8 @@
 import pathlib
 from calendar import monthrange, isleap
 
-from core_types import Numeric, DataSource, Nominal, Date
-from core_constants import *
+from pandora.types import Numeric, DataSource, Nominal, Date
+from pandora.constants import *
 
 
 def scale_week_of_year(row):

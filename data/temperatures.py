@@ -1,8 +1,8 @@
 import pathlib
 
-from core_types import Numeric, DataSource, Nominal, Imputation, Date
-from core_imputers import *
-from core_constants import *
+from pandora.types import Numeric, DataSource, Nominal, Imputation, Date
+from pandora.imputers import *
+from pandora.constants import *
 
 LOCATION = f"{pathlib.Path(__file__).parent.absolute()}/temperatures.csv"
 

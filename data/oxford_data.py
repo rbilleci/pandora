@@ -4,9 +4,9 @@ import re
 import urllib.request
 from datetime import datetime
 
-from core_types import Numeric, Ordinal, DataSource, Nominal, Date, Imputation
-from core_imputers import *
-from core_constants import *
+from pandora.types import Numeric, Ordinal, DataSource, Nominal, Date, Imputation
+from pandora.imputers import *
+from pandora.constants import *
 
 EXTERNAL_LOCATION = "https://github.com/OxCGRT/covid-policy-tracker/raw/master/data/OxCGRT_latest.csv"
 FILE = "oxford_data.csv"

@@ -1,8 +1,8 @@
 import pathlib
 
-from core_types import Numeric, DataSource, Nominal, Imputation
-from core_imputers import *
-from core_constants import *
+from pandora.types import Numeric, DataSource, Nominal, Imputation
+from pandora.imputers import *
+from pandora.constants import *
 
 imputations = [
     Imputation(impute_with_mean, [YEAR, COUNTRY]),  # fallback to country average for the year
