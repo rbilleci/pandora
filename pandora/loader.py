@@ -4,7 +4,7 @@ from typing import Optional
 
 import pandas as pd
 
-from pandora.core_fields import COUNTRY, REGION, GEO_ID, WEEK, MONTH, QUARTER, YEAR, DAY_OF_MONTH, DAY_OF_WEEK, \
+from pandora.core_fields import COUNTRY, REGION, WEEK, MONTH, QUARTER, YEAR, DAY_OF_MONTH, DAY_OF_WEEK, \
     DAY_OF_YEAR, DATE, CORE_FIELDS
 from pandora.core_types import Numeric, Ordinal, Nominal, Boolean, Date
 
@@ -16,7 +16,6 @@ def load(start_date: datetime.date,
     info('loading geos')
     datetime_index = pd.date_range(start_date, end_date, freq='D')
     df = expand(load_source(geos), datetime_index)
-    df[GEO_ID] = df[[COUNTRY, REGION]].apply(resolve_geo_id, axis=1)
     schema = {**CORE_FIELDS, **geos.FIELDS, }
 
     info('adding date fields')
@@ -112,10 +111,6 @@ def resolve_expansion_conditions(df: pd.DataFrame) -> Optional[str]:
         return ' and '.join([condition for condition in conditions])
     else:
         return None
-
-
-def resolve_geo_id(x: pd.DataFrame):
-    return x[COUNTRY] if x[REGION] == '' else (x[COUNTRY] + '/' + x[REGION])
 
 
 def resolve_week(x: datetime.date):
