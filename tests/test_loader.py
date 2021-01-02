@@ -12,7 +12,7 @@ from pandora import loader
 basicConfig(level=INFO, format='%(asctime)s\t%(levelname)s\t%(filename)s\t%(message)s')
 
 
-class DataLoaderTestCase(unittest.TestCase):
+class LoaderTestCase(unittest.TestCase):
 
     def test_loader(self):
         start_date = date(2020, 1, 1)

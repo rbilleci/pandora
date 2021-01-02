@@ -47,7 +47,7 @@ def merge(df: pd.DataFrame,
                   how="left",
                   suffixes=[None, '_R'],
                   copy=False)
-    for name in df:
+    for name in df.columns:
         if name.endswith('_R'):
             df = df.drop(name, axis=1)
     return df, {**data_source.FIELDS, **schema}
@@ -79,7 +79,7 @@ def load_source(source: {}) -> pd.DataFrame:
 
 def expand(df: pd.DataFrame,
            datetime_index: pd.DatetimeIndex) -> pd.DataFrame:
-    if DATE in df:
+    if DATE in df.columns:
         return df
     else:
         query = resolve_expansion_conditions(df)
@@ -92,7 +92,7 @@ def expand(df: pd.DataFrame,
 
 def resolve_expansion_conditions(df: pd.DataFrame) -> Optional[str]:
     conditions = []
-    for name in df:
+    for name in df.columns:
         if name == YEAR:
             conditions.append('datetime_index.year == r[YEAR]')
         elif name == MONTH:

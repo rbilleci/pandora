@@ -18,9 +18,9 @@ pd.options.display.max_rows = None
 pd.options.display.max_info_columns = 1000
 
 
-class DataPrepTestCase(unittest.TestCase):
+class ImputerTestCase(unittest.TestCase):
 
-    def test_dataprep(self):
+    def test_imputer(self):
         start_date = date(2020, 1, 1)
         end_date = date(2021, 6, 30)
         df, schema = loader.load(start_date,

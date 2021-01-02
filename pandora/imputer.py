@@ -19,7 +19,7 @@ def impute(df: pd.DataFrame, schema: Dict[str, Field]) -> (pd.DataFrame, Dict[st
 
 def mark_missing(df: pd.DataFrame,
                  schema: Dict[str, Field]) -> (pd.DataFrame, Dict[str, Field]):
-    for name in df:
+    for name in df.columns:
         if name in schema and schema[name].mark_missing:
             info(f"marking missing values for column: {name}")
             df[f"{name}{MISSING_INDICATOR_SUFFIX}"] = df[name].isna()
@@ -28,7 +28,7 @@ def mark_missing(df: pd.DataFrame,
 
 def impute_df(df: pd.DataFrame,
               schema: Dict[str, Field]) -> (pd.DataFrame, Dict[str, Field]):
-    for name in df:
+    for name in df.columns:
         if name in schema and schema[name].imputations:
             info(f"imputing {name}")
             for imputation in schema[name].imputations:
@@ -55,7 +55,7 @@ def impute_df_series_by_group(group, name, function) -> pd.DataFrame:
 
 def validate(df: pd.DataFrame, schema: Dict[str, Field]) -> None:
     info(f"validating fields")
-    for name in df:
+    for name in df.columns:
         # validate N/As / nulls
         if df[name].isna().any():
             raise ValueError(f"{name} has NA values")
@@ -70,7 +70,7 @@ def validate(df: pd.DataFrame, schema: Dict[str, Field]) -> None:
 
 
 def coerce_types(df: pd.DataFrame, schema: Dict[str, Field]) -> None:
-    for name in df:
+    for name in df.columns:
         if name in schema:
             field = schema[name]
             if isinstance(field, Ordinal):
