@@ -1,4 +1,6 @@
 import math
+from abc import ABC, abstractmethod
+
 import fnvhash
 from typing import Dict, Optional
 
@@ -7,191 +9,159 @@ import pandas as pd
 
 from pandora.core_types import Field, Numeric
 
-DROP_INTERCEPT = True
-HASH_METHOD = 'md5'
-INTERCEPT_COLUMN = 'intercept'
-INFIX_HASH = '_hash_'
-INFIX_OHE = '_ohe_'
-INFIX_BINARY = '_bin_'
-INFIX_SUM = '_sum_'
-INFIX_BACKWARD_DIFFERENCE = '_bde_'
-INFIX_BASE_N = '_base_n_'
-INFIX_HELMERT = '_helmert_'
-INFIX_POLYNOMIAL = '_poly_'
-INFIX_BlOOM = '_bloom_'
+
+class Encoder(ABC):
+    def __init__(self, name: str):
+        self._name = name
+
+    @property
+    def name(self):
+        return self._name
+
+    @abstractmethod
+    def fit_transform(self, df: pd.DataFrame, schema: Dict[str, Field]) -> (pd.DataFrame, Dict[str, Field]):
+        raise RuntimeError('unimplemented')
+
+    @abstractmethod
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        raise RuntimeError('unimplemented')
 
 
-def cyclical_encode(df: pd.DataFrame,
-                    schema: Dict[str, Field],
-                    name: str,
-                    fun: callable,
-                    limit: float) -> (pd.DataFrame, Dict[str, Field]):
-    df[f"{name}_sin"] = df[name].map(lambda x: math.sin(2 * math.pi * fun(x) / limit))
-    df[f"{name}_cos"] = df[name].map(lambda x: math.cos(2 * math.pi * fun(x) / limit))
-    schema = dict(schema)
-    schema.update({f"{name}_sin": Numeric(-1.0, 1.0)})
-    schema.update({f"{name}_cos": Numeric(-1.0, 1.0)})
-    return df, schema
+class CEEncoder(Encoder, ABC):
+
+    def __init__(self, name: str, infix: str, ce, minimum: float, maximum: Optional[float]):
+        super().__init__(name)
+        self._infix = infix
+        self._ce = ce
+        self._minimum = minimum
+        self._maximum = maximum
+
+    def fit_transform(self,
+                      df: pd.DataFrame,
+                      schema: Dict[str, Field]) -> (pd.DataFrame, Dict[str, Field]):
+        df_encoded = self._ce.fit_transform(df[self.name])
+        df_encoded = df_encoded.drop(columns=['intercept'], errors='ignore')
+        df_encoded = self.update_column_names(df_encoded)
+        return df.join(df_encoded), self.update_schema(df_encoded, schema)
+
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        df_encoded = self._ce.transform(df[self.name])
+        df_encoded = df_encoded.drop(columns=['intercept'], errors='ignore')
+        df_encoded = self.update_column_names(df_encoded)
+        return df.join(df_encoded)
+
+    def update_column_names(self, df_encoded: pd.DataFrame) -> pd.DataFrame:
+        col = 'col_'
+        old = f"{self.name}_"
+        new = f"{self.name}{self._infix}"
+        df_encoded = df_encoded.rename(columns=lambda s: s.replace(col, old, 1) if s.startswith(col) else s)
+        df_encoded = df_encoded.rename(columns=lambda s: s.replace(old, new, 1))
+        return df_encoded
+
+    def update_schema(self, df_encoded: pd.DataFrame, schema) -> Dict[str, Field]:
+        schema = dict(schema)
+        for name in df_encoded.columns:
+            schema.update({name: Numeric(self._minimum,
+                                         self._maximum if self._maximum else df_encoded[name].max())})
+        return schema
 
 
-def bloom_filter_encode(df: pd.DataFrame,
-                        schema: Dict[str, Field],
-                        name: str,
-                        hashes: int,
-                        bits: int) -> (pd.DataFrame, Dict[str, Field]):
-    # for each hash we must perform, a hash, then map it onto the bits
-    df_encoded = pd.DataFrame()
-    for i in range(0, hashes):
-        df_encoded['tmp'] = df[name].map(lambda v: bloom_filter_encode_hash(i, v, bits))
-        for bit in range(0, bits):
-            bit_column = f"{name}{INFIX_BlOOM}{bit}"
-            df_encoded.loc[df_encoded['tmp'] == bit, bit_column] = 1
-
-    # drop the tmp hash column and fill missing values with 0
-    df_encoded = df_encoded.drop(columns=['tmp']).fillna(0)
-
-    # update the schema
-    schema = update_schema(df_encoded, schema, 0.0, 1.0)
-    df = df.join(df_encoded)
-    return df, schema
+class BinaryEncoder(CEEncoder):
+    def __init__(self, name: str):
+        super().__init__(name, '_bin_', ce.BinaryEncoder(cols=[name]), 0, 1)
 
 
-def bloom_filter_encode_hash(hash_index, value, bits) -> int:
-    return fnvhash.fnv1a_32((str(value) + str(hash_index)).encode()) % bits
+class SumEncoder(CEEncoder):
+    def __init__(self, name: str):
+        super().__init__(name, '_sum_', ce.SumEncoder(cols=[name]), -1.0, 1.0)
 
 
-def hash_encode(df: pd.DataFrame,
-                schema: Dict[str, Field],
-                name: str,
-                bits: int = 16) -> (pd.DataFrame, Dict[str, Field]):
-    encoder = ce.HashingEncoder(cols=[name], n_components=bits, hash_method=HASH_METHOD)
-    return encode(encoder,
-                  df,
-                  schema,
-                  name,
-                  0.0,
-                  1.0,
-                  INFIX_HASH)
+class HelmertContrastEncoder(CEEncoder):
+    def __init__(self, name: str):
+        super().__init__(name, '_helmert_', ce.HelmertEncoder(cols=[name]), -1.0, None)
 
 
-def one_hot_encode(df: pd.DataFrame, schema: Dict[str, Field], name: str) -> (pd.DataFrame, Dict[str, Field]):
-    encoder = ce.OneHotEncoder(cols=[name], use_cat_names=True)
-    return encode(encoder,
-                  df,
-                  schema,
-                  name,
-                  0.0,
-                  1.0,
-                  INFIX_OHE)
+class HashEncoder(CEEncoder):
+    def __init__(self, name: str, bits: int):
+        super().__init__(name, '_hash_', ce.HashingEncoder(cols=[name], n_components=bits), 0, 1)
 
 
-def binary_encode(df: pd.DataFrame,
-                  schema: Dict[str, Field],
-                  name: str) -> (pd.DataFrame, Dict[str, Field]):
-    encoder = ce.BinaryEncoder(cols=[name])
-    return encode(encoder,
-                  df,
-                  schema,
-                  name,
-                  0.0,
-                  1.0,
-                  INFIX_BINARY)
+class OneHotEncoder(CEEncoder):
+    def __init__(self, name: str):
+        super().__init__(name, '_ohe_', ce.OneHotEncoder(cols=[name], use_cat_names=True), 0, 1)
 
 
-def sum_encode(df: pd.DataFrame,
-               schema: Dict[str, Field],
-               name: str) -> (pd.DataFrame, Dict[str, Field]):
-    encoder = ce.SumEncoder(cols=[name])
-    return encode(encoder,
-                  df,
-                  schema,
-                  name,
-                  -1.0,
-                  1.0,
-                  INFIX_SUM)
+class BackwardDifferenceEncoder(CEEncoder):
+    def __init__(self, name: str):
+        super().__init__(name, '_bde_', ce.BackwardDifferenceEncoder(cols=[name]), -1.0, 1.0)
 
 
-def backward_difference_encode(df: pd.DataFrame,
-                               schema: Dict[str, Field],
-                               name: str) -> (pd.DataFrame, Dict[str, Field]):
-    encoder = ce.SumEncoder(cols=[name])
-    return encode(encoder,
-                  df,
-                  schema,
-                  name,
-                  -1.0,
-                  1.0,
-                  INFIX_BACKWARD_DIFFERENCE)
+class BaseNEncoder(CEEncoder):
+    def __init__(self, name: str, base: int = 8):
+        super().__init__(name, '_base_n_', ce.BaseNEncoder(cols=[name]), 0, base - 1)
 
 
-def base_n_encode(df: pd.DataFrame,
-                  schema: Dict[str, Field],
-                  name: str,
-                  base: int = 8) -> (pd.DataFrame, Dict[str, Field]):
-    encoder = ce.BaseNEncoder(cols=[name], base=base)
-    return encode(encoder,
-                  df,
-                  schema,
-                  name,
-                  0.0,
-                  float(base) - 1.0,
-                  INFIX_BASE_N)
+class PolynomialEncoder(CEEncoder):
+    def __init__(self, name: str):
+        super().__init__(name, '_poly_', ce.PolynomialEncoder(cols=[name]), -1.0, None)
 
 
-def helmert_contrast_encode(df: pd.DataFrame,
-                            schema: Dict[str, Field],
-                            name: str) -> (pd.DataFrame, Dict[str, Field]):
-    encoder = ce.HelmertEncoder(cols=[name])
-    return encode(encoder,
-                  df,
-                  schema,
-                  name,
-                  -1.0,
-                  None,
-                  INFIX_HELMERT)
+class CyclicalEncoder(Encoder):
+    def __init__(self, name: str, fn: callable, limit: float):
+        super().__init__(name)
+        self._fn = fn
+        self._limit = limit
+
+    @property
+    def limit(self):
+        return self._limit
+
+    @property
+    def fn(self):
+        return self._fn
+
+    def fit_transform(self, df: pd.DataFrame, schema: Dict[str, Field]) -> (pd.DataFrame, Dict[str, Field]):
+        return self.transform(df), self.update_schema(schema)
+
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        df[f"{self.name}_sin"] = df[self.name].map(lambda x: math.sin(2 * math.pi * self.fn(x) / self.limit))
+        df[f"{self.name}_cos"] = df[self.name].map(lambda x: math.cos(2 * math.pi * self.fn(x) / self.limit))
+        return df
+
+    def update_schema(self, schema: Dict[str, Field]) -> (pd.DataFrame, Dict[str, Field]):
+        schema = dict(schema)
+        schema.update({f"{self.name}_sin": Numeric(-1.0, 1.0)})
+        schema.update({f"{self.name}_cos": Numeric(-1.0, 1.0)})
+        return schema
 
 
-def polynomial_encode(df: pd.DataFrame,
-                      schema: Dict[str, Field],
-                      name: str) -> (pd.DataFrame, Dict[str, Field]):
-    encoder = ce.PolynomialEncoder(cols=[name])
-    return encode(encoder,
-                  df,
-                  schema,
-                  name,
-                  -1.0,
-                  None,
-                  INFIX_POLYNOMIAL)
+class BloomFilterEncoder(CEEncoder):
+    def __init__(self, name: str, hashes: int, bits: int):
+        super().__init__(name, '_bloom_', None, 0, 1)
+        self._hashes = hashes
+        self._bits = bits
 
+    @property
+    def hashes(self):
+        return self._hashes
 
-def encode(encoder,
-           df: pd.DataFrame,
-           schema: Dict[str, Field],
-           name: str,
-           minimum: float,
-           maximum: Optional[float],
-           infix) -> (pd.DataFrame, Dict[str, Field]):
-    df_encoded = encoder.fit_transform(df[name])
-    df_encoded = df_encoded.drop(columns=[INTERCEPT_COLUMN], errors='ignore')
-    df_encoded = update_column_names(df_encoded, name, infix)
-    schema = update_schema(df_encoded, schema, minimum, maximum)
-    df = df.join(df_encoded)
-    return df, schema
+    @property
+    def bits(self):
+        return self._bits
 
+    def fit_transform(self, df: pd.DataFrame, schema: Dict[str, Field]) -> (pd.DataFrame, Dict[str, Field]):
+        df_encoded = self.transform(df)
+        return df.join(df_encoded), super().update_schema(df_encoded, schema)
 
-def update_column_names(df_encoded,
-                        name,
-                        infix) -> pd.DataFrame:
-    df_encoded = df_encoded.rename(columns=lambda s: s.replace(f"col_", f"{name}_", 1) if s.startswith('col_') else s)
-    df_encoded = df_encoded.rename(columns=lambda s: s.replace(f"{name}_", f"{name}{infix}", 1))
-    return df_encoded
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        df_encoded = pd.DataFrame()
+        for i in range(0, self.hashes):
+            df_encoded['tmp'] = df[self.name].map(lambda v: BloomFilterEncoder.hash(i, v, self.bits))
+            for bit in range(0, self.bits):
+                bit_column = f"{self.name}{'_bloom_'}{bit}"
+                df_encoded.loc[df_encoded['tmp'] == bit, bit_column] = 1
+        return df_encoded.drop(columns=['tmp']).fillna(0)
 
-
-def update_schema(df_encoded,
-                  schema,
-                  minimum,
-                  maximum) -> Dict[str, Field]:
-    schema = dict(schema)
-    for name in df_encoded.columns:
-        schema.update({name: Numeric(minimum, maximum if maximum else df_encoded[name].max())})
-    return schema
+    @staticmethod
+    def hash(hash_index, value, bits) -> int:
+        return fnvhash.fnv1a_32((str(value) + str(hash_index)).encode()) % bits

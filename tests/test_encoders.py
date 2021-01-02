@@ -24,7 +24,7 @@ class EncoderTestCase(unittest.TestCase):
                                  geo,
                                  [geo_iso, population])
         df, schema = imputer.impute(df, schema)
-        df, schema = encoders.hash_encode(df, schema, COUNTRY, 8)
+        df, schema = encoders.HashEncoder(COUNTRY, 8).fit_transform(df, schema)
         self.assertIn(f"{COUNTRY}_hash_0", df.columns)
         self.assertIn(f"{COUNTRY}_hash_0", schema)
         df.info()
@@ -35,7 +35,7 @@ class EncoderTestCase(unittest.TestCase):
                                  geo,
                                  [geo_iso, population])
         df, schema = imputer.impute(df, schema)
-        df, schema = encoders.cyclical_encode(df, schema, DAY_OF_WEEK, lambda x: x, 7)
+        df, schema = encoders.CyclicalEncoder(DAY_OF_WEEK, lambda x: x, 7).fit_transform(df, schema)
         self.assertIn(f"{DAY_OF_WEEK}_sin", schema)
         self.assertIn(f"{DAY_OF_WEEK}_cos", schema)
         self.assertIn(f"{DAY_OF_WEEK}_sin", df.columns)
@@ -47,7 +47,7 @@ class EncoderTestCase(unittest.TestCase):
                                  geo,
                                  [geo_iso, population])
         df, schema = imputer.impute(df, schema)
-        df, schema = encoders.one_hot_encode(df, schema, COUNTRY)
+        df, schema = encoders.OneHotEncoder(COUNTRY).fit_transform(df, schema)
         self.assertIn(f"{COUNTRY}_ohe_Germany", df.columns)
         self.assertIn(f"{COUNTRY}_ohe_Germany", schema)
         df.info()
@@ -58,7 +58,7 @@ class EncoderTestCase(unittest.TestCase):
                                  geo,
                                  [geo_iso, population])
         df, schema = imputer.impute(df, schema)
-        df, schema = encoders.binary_encode(df, schema, COUNTRY)
+        df, schema = encoders.BinaryEncoder(COUNTRY).fit_transform(df, schema)
         self.assertIn(f"{COUNTRY}_bin_0", df.columns)
         self.assertIn(f"{COUNTRY}_bin_0", schema)
 
@@ -68,7 +68,7 @@ class EncoderTestCase(unittest.TestCase):
                                  geo,
                                  [geo_iso, population])
         df, schema = imputer.impute(df, schema)
-        df, schema = encoders.sum_encode(df, schema, COUNTRY)
+        df, schema = encoders.SumEncoder(COUNTRY).fit_transform(df, schema)
         self.assertIn(f"{COUNTRY}_sum_0", df.columns)
         self.assertIn(f"{COUNTRY}_sum_0", schema)
 
@@ -78,7 +78,7 @@ class EncoderTestCase(unittest.TestCase):
                                  geo,
                                  [geo_iso, population])
         df, schema = imputer.impute(df, schema)
-        df, schema = encoders.backward_difference_encode(df, schema, COUNTRY)
+        df, schema = encoders.BackwardDifferenceEncoder(COUNTRY).fit_transform(df, schema)
         self.assertIn(f"{COUNTRY}_bde_0", df.columns)
         self.assertIn(f"{COUNTRY}_bde_0", schema)
 
@@ -88,7 +88,7 @@ class EncoderTestCase(unittest.TestCase):
                                  geo,
                                  [geo_iso, population])
         df, schema = imputer.impute(df, schema)
-        df, schema = encoders.base_n_encode(df, schema, COUNTRY, 8)
+        df, schema = encoders.BaseNEncoder(COUNTRY, 8).fit_transform(df, schema)
         self.assertIn(f"{COUNTRY}_base_n_0", df.columns)
         self.assertIn(f"{COUNTRY}_base_n_0", schema)
 
@@ -98,7 +98,7 @@ class EncoderTestCase(unittest.TestCase):
                                  geo,
                                  [geo_iso, population])
         df, schema = imputer.impute(df, schema)
-        df, schema = encoders.helmert_contrast_encode(df, schema, COUNTRY)
+        df, schema = encoders.HelmertContrastEncoder(COUNTRY).fit_transform(df, schema)
         self.assertIn(f"{COUNTRY}_helmert_0", df.columns)
         self.assertIn(f"{COUNTRY}_helmert_0", schema)
 
@@ -108,7 +108,7 @@ class EncoderTestCase(unittest.TestCase):
                                  geo,
                                  [geo_iso, population])
         df, schema = imputer.impute(df, schema)
-        df, schema = encoders.polynomial_encode(df, schema, COUNTRY)
+        df, schema = encoders.PolynomialEncoder(COUNTRY).fit_transform(df, schema)
         self.assertIn(f"{COUNTRY}_poly_0", df.columns)
         self.assertIn(f"{COUNTRY}_poly_0", schema)
 
@@ -118,6 +118,6 @@ class EncoderTestCase(unittest.TestCase):
                                  geo,
                                  [geo_iso, population])
         df, schema = imputer.impute(df, schema)
-        df, schema = encoders.bloom_filter_encode(df, schema, COUNTRY, 3, 31)
+        df, schema = encoders.BloomFilterEncoder(COUNTRY, 3, 31).fit_transform(df, schema)
         self.assertIn(f"{COUNTRY}_bloom_0", df.columns)
         self.assertIn(f"{COUNTRY}_bloom_0", schema)
