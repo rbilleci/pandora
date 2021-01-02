@@ -1,4 +1,5 @@
 import math
+import fnvhash
 from typing import Dict, Optional
 
 import category_encoders as ce
@@ -17,6 +18,7 @@ INFIX_BACKWARD_DIFFERENCE = '_bde_'
 INFIX_BASE_N = '_base_n_'
 INFIX_HELMERT = '_helmert_'
 INFIX_POLYNOMIAL = '_poly_'
+INFIX_BlOOM = '_bloom_'
 
 
 def cyclical_encode(df: pd.DataFrame,
@@ -30,6 +32,32 @@ def cyclical_encode(df: pd.DataFrame,
     schema.update({f"{name}_sin": Numeric(-1.0, 1.0)})
     schema.update({f"{name}_cos": Numeric(-1.0, 1.0)})
     return df, schema
+
+
+def bloom_filter_encode(df: pd.DataFrame,
+                        schema: Dict[str, Field],
+                        name: str,
+                        hashes: int,
+                        bits: int) -> (pd.DataFrame, Dict[str, Field]):
+    # for each hash we must perform, a hash, then map it onto the bits
+    df_encoded = pd.DataFrame()
+    for i in range(0, hashes):
+        df_encoded['tmp'] = df[name].map(lambda v: bloom_filter_encode_hash(i, v, bits))
+        for bit in range(0, bits):
+            bit_column = f"{name}{INFIX_BlOOM}{bit}"
+            df_encoded.loc[df_encoded['tmp'] == bit, bit_column] = 1
+
+    # drop the tmp hash column and fill missing values with 0
+    df_encoded = df_encoded.drop(columns=['tmp']).fillna(0)
+
+    # update the schema
+    schema = update_schema(df_encoded, schema, 0.0, 1.0)
+    df = df.join(df_encoded)
+    return df, schema
+
+
+def bloom_filter_encode_hash(hash_index, value, bits) -> int:
+    return fnvhash.fnv1a_32((str(value) + str(hash_index)).encode()) % bits
 
 
 def hash_encode(df: pd.DataFrame,

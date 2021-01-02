@@ -111,3 +111,13 @@ class EncoderTestCase(unittest.TestCase):
         df, schema = encoders.polynomial_encode(df, schema, COUNTRY)
         self.assertIn(f"{COUNTRY}_poly_0", df.columns)
         self.assertIn(f"{COUNTRY}_poly_0", schema)
+
+    def test_bloom_filter_encode(self):
+        df, schema = loader.load(date(2020, 1, 1),
+                                 date(2020, 3, 1),
+                                 geo,
+                                 [geo_iso, population])
+        df, schema = imputer.impute(df, schema)
+        df, schema = encoders.bloom_filter_encode(df, schema, COUNTRY, 3, 31)
+        self.assertIn(f"{COUNTRY}_bloom_0", df.columns)
+        self.assertIn(f"{COUNTRY}_bloom_0", schema)
