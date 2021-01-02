@@ -64,12 +64,11 @@ class EncoderTestCase(unittest.TestCase):
 
     def test_sum_encoder(self):
         df, schema = loader.load(date(2020, 1, 1),
-                                 date(2020, 3, 1),
+                                 date(2020, 12, 31),
                                  geo,
                                  [geo_iso, population])
         df, schema = imputer.impute(df, schema)
         df, schema = encoders.sum_encode(df, schema, COUNTRY)
-        df.info()
         self.assertIn(f"{COUNTRY}_sum_0", df.columns)
         self.assertIn(f"{COUNTRY}_sum_0", schema)
 
@@ -80,7 +79,6 @@ class EncoderTestCase(unittest.TestCase):
                                  [geo_iso, population])
         df, schema = imputer.impute(df, schema)
         df, schema = encoders.backward_difference_encode(df, schema, COUNTRY)
-        df.info()
         self.assertIn(f"{COUNTRY}_bde_0", df.columns)
         self.assertIn(f"{COUNTRY}_bde_0", schema)
 
@@ -90,8 +88,7 @@ class EncoderTestCase(unittest.TestCase):
                                  geo,
                                  [geo_iso, population])
         df, schema = imputer.impute(df, schema)
-        df, schema = encoders.base_n_encode(df, schema, COUNTRY, 4)
-        df.info()
+        df, schema = encoders.base_n_encode(df, schema, COUNTRY, 8)
         self.assertIn(f"{COUNTRY}_base_n_0", df.columns)
         self.assertIn(f"{COUNTRY}_base_n_0", schema)
 
@@ -102,9 +99,8 @@ class EncoderTestCase(unittest.TestCase):
                                  [geo_iso, population])
         df, schema = imputer.impute(df, schema)
         df, schema = encoders.helmert_contrast_encode(df, schema, COUNTRY)
-        df.info()
-        self.assertIn(f"{COUNTRY}_hce_0", df.columns)
-        self.assertIn(f"{COUNTRY}_hce_0", schema)
+        self.assertIn(f"{COUNTRY}_helmert_0", df.columns)
+        self.assertIn(f"{COUNTRY}_helmert_0", schema)
 
     def test_polynomial_encode(self):
         df, schema = loader.load(date(2020, 1, 1),
@@ -113,6 +109,5 @@ class EncoderTestCase(unittest.TestCase):
                                  [geo_iso, population])
         df, schema = imputer.impute(df, schema)
         df, schema = encoders.polynomial_encode(df, schema, COUNTRY)
-        df.info()
         self.assertIn(f"{COUNTRY}_poly_0", df.columns)
         self.assertIn(f"{COUNTRY}_poly_0", schema)
