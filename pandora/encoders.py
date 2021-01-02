@@ -29,23 +29,23 @@ class Encoder(ABC):
 
 class CEEncoder(Encoder, ABC):
 
-    def __init__(self, name: str, infix: str, ce, minimum: float, maximum: Optional[float]):
+    def __init__(self, name: str, infix: str, internal_encoder, minimum: float, maximum: Optional[float]):
         super().__init__(name)
         self._infix = infix
-        self._ce = ce
+        self._internal_encoder = internal_encoder
         self._minimum = minimum
         self._maximum = maximum
 
     def fit_transform(self,
                       df: pd.DataFrame,
                       schema: Dict[str, Field]) -> (pd.DataFrame, Dict[str, Field]):
-        df_encoded = self._ce.fit_transform(df[self.name])
+        df_encoded = self._internal_encoder.fit_transform(df[self.name])
         df_encoded = df_encoded.drop(columns=['intercept'], errors='ignore')
         df_encoded = self.update_column_names(df_encoded)
         return df.join(df_encoded), self.update_schema(df_encoded, schema)
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
-        df_encoded = self._ce.transform(df[self.name])
+        df_encoded = self._internal_encoder.transform(df[self.name])
         df_encoded = df_encoded.drop(columns=['intercept'], errors='ignore')
         df_encoded = self.update_column_names(df_encoded)
         return df.join(df_encoded)
@@ -107,25 +107,17 @@ class PolynomialEncoder(CEEncoder):
 
 
 class CyclicalEncoder(Encoder):
-    def __init__(self, name: str, fn: callable, limit: float):
+    def __init__(self, name: str):
         super().__init__(name)
-        self._fn = fn
-        self._limit = limit
-
-    @property
-    def limit(self):
-        return self._limit
-
-    @property
-    def fn(self):
-        return self._fn
 
     def fit_transform(self, df: pd.DataFrame, schema: Dict[str, Field]) -> (pd.DataFrame, Dict[str, Field]):
         return self.transform(df), self.update_schema(schema)
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
-        df[f"{self.name}_sin"] = df[self.name].map(lambda x: math.sin(2 * math.pi * self.fn(x) / self.limit))
-        df[f"{self.name}_cos"] = df[self.name].map(lambda x: math.cos(2 * math.pi * self.fn(x) / self.limit))
+        if df[f"{self.name}"].max() > 1.0 or df[f"{self.name}"].min() < 0.0:
+            raise ValueError(f"column {self.name} must be scaled in the range of 0.0 -> 1.0 before cyclical encoding")
+        df[f"{self.name}_sin"] = df[self.name].map(lambda x: math.sin(2 * math.pi * x))
+        df[f"{self.name}_cos"] = df[self.name].map(lambda x: math.cos(2 * math.pi * x))
         return df
 
     def update_schema(self, schema: Dict[str, Field]) -> (pd.DataFrame, Dict[str, Field]):

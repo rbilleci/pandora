@@ -35,7 +35,8 @@ class EncoderTestCase(unittest.TestCase):
                                  geo,
                                  [geo_iso, population])
         df, schema = imputer.impute(df, schema)
-        df, schema = encoders.CyclicalEncoder(DAY_OF_WEEK, lambda x: x, 7).fit_transform(df, schema)
+        df[DAY_OF_WEEK] = df[DAY_OF_WEEK] / 7.0
+        df, schema = encoders.CyclicalEncoder(DAY_OF_WEEK).fit_transform(df, schema)
         self.assertIn(f"{DAY_OF_WEEK}_sin", schema)
         self.assertIn(f"{DAY_OF_WEEK}_cos", schema)
         self.assertIn(f"{DAY_OF_WEEK}_sin", df.columns)
