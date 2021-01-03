@@ -84,9 +84,9 @@ def expand(df: pd.DataFrame,
     else:
         query = resolve_expansion_conditions(df)
         if query:
-            df[DATE] = df.apply(lambda r: datetime_index[pd.eval(query)], axis=1)
+            df[DATE] = df.applymap(lambda r: datetime_index[pd.eval(query)])
         else:
-            df[DATE] = df.apply(lambda r: datetime_index, axis=1)
+            df[DATE] = df.applymap(lambda r: datetime_index)
         return df.explode(DATE, ignore_index=True).reset_index(0, drop=True)
 
 
