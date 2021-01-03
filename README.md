@@ -6,8 +6,8 @@
 
 The following geographic fields are available to represent your data:
 
-* **country_name**
-* **region_name**
+* **country**
+* **region**
 
 Along with the above fields, system will automatically derive a **continent** field that may be used in your machine
 learning model.
@@ -29,15 +29,15 @@ Depending on the type of data you are merging into your dataset, you may use dif
 
 ##### Examples of modeling dates
 
-a. if you are model in quarterly economic reports, you would only use the **country_name**, **year**, and **quarter**
+a. if you are model in quarterly economic reports, you would only use the **country**, **year**, and **quarter**
 fields. You would not repeat the same data for every day of a quarter. When the dataset is merged with the other case
 data, it will be exploded to a daily basis.
 
-b. if you model average temperatures per quarter each year, you might only specify the **country_name**, **region_name**
+b. if you model average temperatures per quarter each year, you might only specify the **country**, **region**
 , and **quarter** field. Again, you do not specify the same data for every day of every quarter of every year you are
 modelling. Just specify the data for each quarter, and it will be exploded when merged to your dataset.
 
-c. if you model population by country each year, you would only use the **country_name** field and **year** field
+c. if you model population by country each year, you would only use the **country** field and **year** field
 
 d. if you model holidays that are on fixed days each year, such as December 25, you would use the **month** and **
 day_of_month**

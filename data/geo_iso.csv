@@ -1,4 +1,4 @@
-country_name,iso_3166_numeric,iso_3166_2,iso_3166_3
+country,country_code_numeric,country_code,country_code3
 Afghanistan,004,AF,AFG
 Albania,008,AL,ALB
 Algeria,012,DZ,DZA

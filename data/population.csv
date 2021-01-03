@@ -1,4 +1,4 @@
-﻿country_name,region_name,year,population,population_density,population_percent_urban,gdp_per_capita,obesity_rate,pneumonia_deaths_per_100k
+﻿country,region,year,population,population_density,population_percent_urban,gdp_per_capita,obesity_rate,pneumonia_deaths_per_100k
 Afghanistan,,2020,38928346,56.93776001,25.495,520.8966027,5.5,69.13071516
 Albania,,2020,2877797,104.6122628,60.319,5268.848504,21.7,12.1525875
 Algeria,,2020,43851044,17.73007507,72.629,4114.715061,27.4,15.52482374

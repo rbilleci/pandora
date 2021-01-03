@@ -3,6 +3,7 @@ import pathlib
 import re
 import urllib.request
 from datetime import datetime
+from logging import info
 
 import pandas as pd
 
@@ -18,7 +19,7 @@ ACCEPTED_COLUMNS = [COUNTRY, REGION, DATE,
 
 
 def update():
-    print('download oxford data set')
+    info('download oxford data set')
     urllib.request.urlretrieve(EXTERNAL_LOCATION, LOCATION_FOR_PREPROCESSING)
     df = pd.read_csv(LOCATION_FOR_PREPROCESSING,
                      parse_dates=['Date'],
@@ -30,10 +31,13 @@ def update():
     os.remove(LOCATION_FOR_PREPROCESSING)
 
 
-def rename_column(name: str) -> str:  # concerts to snake_case
+def rename_column(name: str) -> str:
+    # concerts to snake_case
     name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
     name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', name)
     name = name.replace(' ', '_').replace('__', '_').lower()
+    # remove '_name' suffix
+    name = name.replace('_name', '')
     return name
 
 
