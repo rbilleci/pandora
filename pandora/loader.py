@@ -102,11 +102,11 @@ def resolve_expansion_conditions(df: pd.DataFrame) -> Optional[str]:
         elif name == WEEK:
             conditions.append('datetime_index.isocalendar().week == r[WEEK]')
         elif name == DAY_OF_WEEK:
-            conditions.append('(datetime_index.weekday() + 1) == r[DAY_OF_WEEK]')
+            conditions.append('(datetime_index.day_of_week + 1) == r[DAY_OF_WEEK]')
         elif name == DAY_OF_MONTH:
             conditions.append('datetime_index.timetuple().tm_mday == r[DAY_OF_MONTH]')
         elif name == DAY_OF_YEAR:
-            conditions.append('datetime_index.timetuple().tm_yday == r[DAY_OF_YEAR]')
+            conditions.append('datetime_index.day_of_year == r[DAY_OF_YEAR]')
     if conditions:
         return ' and '.join([condition for condition in conditions])
     else:
