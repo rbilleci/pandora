@@ -4,8 +4,9 @@ from typing import Optional, Dict
 
 import pandas as pd
 
+from data.country_code import COUNTRY_CODE
 from pandora.core_fields import COUNTRY, REGION, WEEK, MONTH, QUARTER, YEAR, DAY_OF_MONTH, DAY_OF_WEEK, \
-    DAY_OF_YEAR, DATE, CORE_FIELDS
+    DAY_OF_YEAR, DATE, CORE_FIELDS, COUNTRY_CODE3
 from pandora.core_types import Numeric, Ordinal, Nominal, Boolean, Date, Field
 
 
@@ -13,21 +14,21 @@ def load(start_date: datetime.date,
          end_date: datetime.date,
          geos: {},
          data_sources: [{}]) -> (pd.DataFrame, Dict[str, Field]):
-    info('loading geos')
+    info('loading geos and expanding to time range')
     datetime_index = pd.date_range(start_date, end_date, freq='D')
     df = expand(load_source(geos), datetime_index)
     schema = {**CORE_FIELDS, **geos.FIELDS, }
 
     info('adding date fields')
-    df[WEEK] = df[DATE].map(resolve_week)
-    df[MONTH] = df[DATE].map(resolve_month)
-    df[QUARTER] = df[DATE].map(resolve_quarter)
-    df[YEAR] = df[DATE].map(resolve_year)
-    df[DAY_OF_YEAR] = df[DATE].map(resolve_day_of_year)
-    df[DAY_OF_MONTH] = df[DATE].map(resolve_day_of_month)
-    df[DAY_OF_WEEK] = df[DATE].map(resolve_day_of_week)
+    df[WEEK] = df[DATE].map(lambda x: x.isocalendar()[1])
+    df[MONTH] = df[DATE].map(lambda x: x.month)
+    df[QUARTER] = df[DATE].map(lambda x: x.quarter)
+    df[YEAR] = df[DATE].map(lambda x: x.year)
+    df[DAY_OF_YEAR] = df[DATE].map(lambda x: x.timetuple().tm_yday)
+    df[DAY_OF_MONTH] = df[DATE].map(lambda x: x.timetuple().tm_mday)
+    df[DAY_OF_WEEK] = df[DATE].map(lambda x: x.weekday() + 1)
 
-    info('merging sources')
+    info('merging data files')
     for data_source in data_sources:
         df, schema = merge(df, schema, data_source, datetime_index)
 
@@ -42,8 +43,11 @@ def merge(df: pd.DataFrame,
           datetime_index: pd.DatetimeIndex) -> (pd.DataFrame, Dict[str, Field]):
     info(f"merging {data_source.LOCATION}")
     df_new = expand(load_source(data_source), datetime_index)
+    df_merge_keys = list({resolve_country_key(df_new),
+                          resolve_region_key(df_new),
+                          DATE}.intersection(df_new))
     df = df.merge(df_new,
-                  on=list({COUNTRY, REGION, DATE}.intersection(df_new)),
+                  on=df_merge_keys,
                   how="left",
                   suffixes=[None, '_R'],
                   copy=False)
@@ -84,9 +88,9 @@ def expand(df: pd.DataFrame,
     else:
         query = resolve_expansion_conditions(df)
         if query:
-            df[DATE] = df.applymap(lambda r: datetime_index[pd.eval(query)])
+            df[DATE] = df.apply(lambda r: datetime_index[pd.eval(query)], axis=1)
         else:
-            df[DATE] = df.applymap(lambda r: datetime_index)
+            df[DATE] = df.apply(lambda r: datetime_index, axis=1)
         return df.explode(DATE, ignore_index=True).reset_index(0, drop=True)
 
 
@@ -113,29 +117,19 @@ def resolve_expansion_conditions(df: pd.DataFrame) -> Optional[str]:
         return None
 
 
-def resolve_week(x: datetime.date):
-    return x.isocalendar()[1]
+def resolve_country_key(df: pd.DataFrame) -> Optional[str]:
+    if COUNTRY_CODE in df.columns:
+        return COUNTRY_CODE
+    elif COUNTRY_CODE3 in df.columns:
+        return COUNTRY_CODE3
+    elif COUNTRY in df.columns:
+        return COUNTRY
+    else:
+        return None
 
 
-def resolve_month(x: datetime.date):
-    return x.month
-
-
-def resolve_quarter(x: datetime.date):
-    return x.quarter
-
-
-def resolve_year(x: datetime.date):
-    return x.year
-
-
-def resolve_day_of_year(x: datetime.date):
-    return x.timetuple().tm_yday
-
-
-def resolve_day_of_month(x: datetime.date):
-    return x.timetuple().tm_mday
-
-
-def resolve_day_of_week(x: datetime.date):
-    return x.weekday() + 1
+def resolve_region_key(df: pd.DataFrame) -> Optional[str]:
+    if REGION in df.columns:
+        return REGION
+    else:
+        return None

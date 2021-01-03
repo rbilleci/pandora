@@ -1,237 +1,237 @@
-country,region
-Afghanistan,
-Albania,
-Algeria,
-Andorra,
-Angola,
-Argentina,
-Aruba,
-Australia,
-Austria,
-Azerbaijan,
-Bahamas,
-Bahrain,
-Bangladesh,
-Barbados,
-Belarus,
-Belgium,
-Belize,
-Benin,
-Bermuda,
-Bhutan,
-Bolivia,
-Bosnia and Herzegovina,
-Botswana,
-Brazil,
-Brunei,
-Bulgaria,
-Burkina Faso,
-Burundi,
-Cambodia,
-Cameroon,
-Canada,
-Cape Verde,
-Central African Republic,
-Chad,
-Chile,
-China,
-Colombia,
-Comoros,
-Congo,
-Costa Rica,
-Cote d'Ivoire,
-Croatia,
-Cuba,
-Cyprus,
-Czech Republic,
-Democratic Republic of Congo,
-Denmark,
-Djibouti,
-Dominica,
-Dominican Republic,
-Ecuador,
-Egypt,
-El Salvador,
-Eritrea,
-Estonia,
-Eswatini,
-Ethiopia,
-Faeroe Islands,
-Fiji,
-Finland,
-France,
-Gabon,
-Gambia,
-Georgia,
-Germany,
-Ghana,
-Greece,
-Greenland,
-Guam,
-Guatemala,
-Guinea,
-Guyana,
-Haiti,
-Honduras,
-Hong Kong,
-Hungary,
-Iceland,
-India,
-Indonesia,
-Iran,
-Iraq,
-Ireland,
-Israel,
-Italy,
-Jamaica,
-Japan,
-Jordan,
-Kazakhstan,
-Kenya,
-Kosovo,
-Kuwait,
-Kyrgyz Republic,
-Laos,
-Latvia,
-Lebanon,
-Lesotho,
-Liberia,
-Libya,
-Lithuania,
-Luxembourg,
-Macao,
-Madagascar,
-Malawi,
-Malaysia,
-Mali,
-Mauritania,
-Mauritius,
-Mexico,
-Moldova,
-Monaco,
-Mongolia,
-Morocco,
-Mozambique,
-Myanmar,
-Namibia,
-Nepal,
-Netherlands,
-New Zealand,
-Nicaragua,
-Niger,
-Nigeria,
-Norway,
-Oman,
-Pakistan,
-Palestine,
-Panama,
-Papua New Guinea,
-Paraguay,
-Peru,
-Philippines,
-Poland,
-Portugal,
-Puerto Rico,
-Qatar,
-Romania,
-Russia,
-Rwanda,
-San Marino,
-Saudi Arabia,
-Senegal,
-Serbia,
-Seychelles,
-Sierra Leone,
-Singapore,
-Slovak Republic,
-Slovenia,
-Solomon Islands,
-Somalia,
-South Africa,
-South Korea,
-South Sudan,
-Spain,
-Sri Lanka,
-Sudan,
-Suriname,
-Sweden,
-Switzerland,
-Syria,
-Taiwan,
-Tajikistan,
-Tanzania,
-Thailand,
-Timor-Leste,
-Togo,
-Trinidad and Tobago,
-Tunisia,
-Turkey,
-Uganda,
-Ukraine,
-United Arab Emirates,
-United Kingdom,
-United Kingdom,England
-United Kingdom,Northern Ireland
-United Kingdom,Scotland
-United Kingdom,Wales
-United States,
-United States,Alabama
-United States,Alaska
-United States,Arizona
-United States,Arkansas
-United States,California
-United States,Colorado
-United States,Connecticut
-United States,Delaware
-United States,Florida
-United States,Georgia
-United States,Hawaii
-United States,Idaho
-United States,Illinois
-United States,Indiana
-United States,Iowa
-United States,Kansas
-United States,Kentucky
-United States,Louisiana
-United States,Maine
-United States,Maryland
-United States,Massachusetts
-United States,Michigan
-United States,Minnesota
-United States,Mississippi
-United States,Missouri
-United States,Montana
-United States,Nebraska
-United States,Nevada
-United States,New Hampshire
-United States,New Jersey
-United States,New Mexico
-United States,New York
-United States,North Carolina
-United States,North Dakota
-United States,Ohio
-United States,Oklahoma
-United States,Oregon
-United States,Pennsylvania
-United States,Rhode Island
-United States,South Carolina
-United States,South Dakota
-United States,Tennessee
-United States,Texas
-United States,Utah
-United States,Vermont
-United States,Virgin Islands
-United States,Virginia
-United States,Washington
-United States,Washington DC
-United States,West Virginia
-United States,Wisconsin
-United States,Wyoming
-Uruguay,
-Uzbekistan,
-Vanuatu,
-Venezuela,
-Vietnam,
-Yemen,
-Zambia,
-Zimbabwe,
+country_code,region
+AF,
+AL,
+DZ,
+AD,
+AO,
+AR,
+AW,
+AU,
+AT,
+AZ,
+BS,
+BH,
+BD,
+BB,
+BY,
+BE,
+BZ,
+BJ,
+BM,
+BT,
+BO,
+BA,
+BW,
+BR,
+BN,
+BG,
+BF,
+BI,
+KH,
+CM,
+CA,
+CV,
+CF,
+TD,
+CL,
+CN,
+CO,
+KM,
+CG,
+CR,
+CI,
+HR,
+CU,
+CY,
+CZ,
+CD,
+DK,
+DJ,
+DM,
+DO,
+EC,
+EG,
+SV,
+ER,
+EE,
+SZ,
+ET,
+FO,
+FJ,
+FI,
+FR,
+GA,
+GM,
+GE,
+DE,
+GH,
+GR,
+GL,
+GU,
+GT,
+GN,
+GY,
+HT,
+HN,
+HK,
+HU,
+IS,
+IN,
+ID,
+IR,
+IQ,
+IE,
+IL,
+IT,
+JM,
+JP,
+JO,
+KZ,
+KE,
+XK,
+KW,
+KG,
+LA,
+LV,
+LB,
+LS,
+LR,
+LY,
+LT,
+LU,
+MO,
+MG,
+MW,
+MY,
+ML,
+MR,
+MU,
+MX,
+MD,
+MC,
+MN,
+MA,
+MZ,
+MM,
+NA,
+NP,
+NL,
+NZ,
+NI,
+NE,
+NG,
+NO,
+OM,
+PK,
+PS,
+PA,
+PG,
+PY,
+PE,
+PH,
+PL,
+PR,
+PT,
+QA,
+RO,
+RU,
+RW,
+SM,
+SA,
+SN,
+RS,
+SC,
+SL,
+SG,
+SK,
+SI,
+SB,
+SO,
+ZA,
+KR,
+SS,
+ES,
+LK,
+SD,
+SR,
+SW,
+CH,
+SY,
+TW,
+TJ,
+TZ,
+TH,
+TL,
+TG,
+TT,
+TN,
+TR,
+UG,
+UA,
+AE,
+GB,
+GB,England
+GB,Northern Ireland
+GB,Scotland
+GB,Wales
+US,
+US,Alabama
+US,Alaska
+US,Arizona
+US,Arkansas
+US,California
+US,Colorado
+US,Connecticut
+US,Delaware
+US,Florida
+US,Georgia
+US,Hawaii
+US,Idaho
+US,Illinois
+US,Indiana
+US,Iowa
+US,Kansas
+US,Kentucky
+US,Louisiana
+US,Maine
+US,Maryland
+US,Massachusetts
+US,Michigan
+US,Minnesota
+US,Mississippi
+US,Missouri
+US,Montana
+US,Nebraska
+US,Nevada
+US,New Hampshire
+US,New Jersey
+US,New Mexico
+US,New York
+US,North Carolina
+US,North Dakota
+US,Ohio
+US,Oklahoma
+US,Oregon
+US,Pennsylvania
+US,Rhode Island
+US,South Carolina
+US,South Dakota
+US,Tennessee
+US,Texas
+US,Utah
+US,Vermont
+US,Virgin Islands
+US,Virginia
+US,Washington
+US,Washington DC
+US,West Virginia
+US,Wisconsin
+US,Wyoming
+UY,
+UZ,
+VU,
+VE,
+VN,
+YE,
+ZM,
+ZW,

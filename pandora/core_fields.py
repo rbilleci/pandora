@@ -3,6 +3,9 @@ from calendar import monthrange, isleap
 from pandora.core_types import Nominal, Date, Numeric
 
 COUNTRY = 'country'
+COUNTRY_CODE_NUMERIC = 'country_code_numeric'
+COUNTRY_CODE = 'country_code'
+COUNTRY_CODE3 = 'country_code3'
 REGION = 'region'
 DATE = 'date'
 YEAR = 'year'

@@ -1,6 +1,6 @@
 import pathlib
 
-from pandora.core_fields import COUNTRY, REGION, DATE
+from pandora.core_fields import COUNTRY, REGION, DATE, COUNTRY_CODE
 from pandora.imputers import impute_with_forward_fill
 from pandora.core_types import Ordinal, Imputation, Numeric, Nominal, Date
 
@@ -23,12 +23,12 @@ H3 = 'h3_contact_tracing'
 H6 = 'h6_facial_coverings'
 
 geo_imputations = [
-    Imputation(impute_with_forward_fill, [REGION, COUNTRY])
+    Imputation(impute_with_forward_fill, [REGION, COUNTRY_CODE])
 ]
 
 npi_imputations = [
-    Imputation(impute_with_forward_fill, [REGION, COUNTRY]),
-    Imputation(impute_with_forward_fill, [COUNTRY])
+    Imputation(impute_with_forward_fill, [REGION, COUNTRY_CODE]),
+    Imputation(impute_with_forward_fill, [COUNTRY_CODE])
 ]
 
 FIELDS = {

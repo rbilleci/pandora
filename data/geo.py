@@ -5,6 +5,6 @@ from pandora.core_fields import *
 LOCATION = f"{pathlib.Path(__file__).parent.absolute()}/geo.csv"
 
 FIELDS = {
-    COUNTRY: Nominal(),
+    COUNTRY_CODE: Nominal(),
     REGION: Nominal()
 }

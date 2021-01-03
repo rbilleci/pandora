@@ -1,16 +1,16 @@
 import pathlib
 
-from pandora.core_fields import COUNTRY, REGION, DATE, QUARTER, YEAR
+from pandora.core_fields import COUNTRY, REGION, DATE, QUARTER, YEAR, COUNTRY_CODE
 from pandora.imputers import impute_with_mean
 from pandora.core_types import Numeric, Imputation, Nominal, Date
 
 imputations = [
-    Imputation(impute_with_mean, [QUARTER, YEAR, REGION, COUNTRY]),
-    Imputation(impute_with_mean, [QUARTER, REGION, COUNTRY]),
-    Imputation(impute_with_mean, [QUARTER, YEAR, COUNTRY]),
-    Imputation(impute_with_mean, [QUARTER, COUNTRY]),
-    Imputation(impute_with_mean, [YEAR, COUNTRY]),
-    Imputation(impute_with_mean, [COUNTRY]),
+    Imputation(impute_with_mean, [QUARTER, YEAR, REGION, COUNTRY_CODE]),
+    Imputation(impute_with_mean, [QUARTER, REGION, COUNTRY_CODE]),
+    Imputation(impute_with_mean, [QUARTER, YEAR, COUNTRY_CODE]),
+    Imputation(impute_with_mean, [QUARTER, COUNTRY_CODE]),
+    Imputation(impute_with_mean, [YEAR, COUNTRY_CODE]),
+    Imputation(impute_with_mean, [COUNTRY_CODE]),
     Imputation(impute_with_mean, [QUARTER, YEAR]),
     Imputation(impute_with_mean, [QUARTER]),
     Imputation(impute_with_mean, [])

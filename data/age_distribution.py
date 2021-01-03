@@ -2,10 +2,10 @@ import pathlib
 
 from pandora.core_types import Numeric, Nominal, Imputation
 from pandora.imputers import impute_with_mean
-from pandora.core_fields import COUNTRY, REGION, YEAR
+from pandora.core_fields import COUNTRY_CODE, REGION, YEAR, COUNTRY
 
 imputations = [
-    Imputation(impute_with_mean, [YEAR, COUNTRY]),  # fallback to country average for the year
+    Imputation(impute_with_mean, [YEAR, COUNTRY_CODE]),  # fallback to country average for the year
     Imputation(impute_with_mean, [YEAR]),  # fallback to worldwide average for the year
     Imputation(impute_with_mean, [])  # fallback to worldwide average
 ]

@@ -1,6 +1,10 @@
 import pandas as pd
 
 
+def impute_with_median(df: pd.DataFrame, name):
+    return df[name].fillna(df[name].median())
+
+
 def impute_with_mean(df: pd.DataFrame, name):
     return df[name].fillna(df[name].mean())
 

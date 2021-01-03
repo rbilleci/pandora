@@ -9,7 +9,7 @@ import data.oxford_data as oxford
 import data.population as population
 import data.temperatures as temperatures
 from pandora import imputer, loader
-from data import geo, continent, geo_iso
+from data import geo, continent, country_code, working_day
 
 basicConfig(level=INFO, format='%(asctime)s\t%(levelname)s\t%(filename)s\t%(message)s')
 
@@ -26,12 +26,15 @@ class ImputerTestCase(unittest.TestCase):
         df, schema = loader.load(start_date,
                                  end_date,
                                  geo,
-                                 [continent,
-                                  geo_iso,
-                                  population,
-                                  age_dist,
-                                  temperatures,
-                                  oxford])
+                                 [
+                                     country_code,
+                                     continent,
+                                     population,
+                                     age_dist,
+                                     temperatures,
+                                     oxford,
+                                     working_day
+                                 ])
         df, schema = imputer.impute(df, schema)
         df.info()
         print(df.describe())
