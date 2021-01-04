@@ -2,3 +2,4 @@ pandas~=1.2.0
 fnvhash~=0.1.0
 scikit-learn~=0.24.0
 workalendar~=14.1.0
+category-encoders~=2.2.2
