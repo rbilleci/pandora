@@ -2,6 +2,7 @@ from calendar import monthrange, isleap
 
 from pandora.core_types import Nominal, Date, Numeric
 
+GEO_CODE = 'geo_code'
 COUNTRY = 'country'
 COUNTRY_CODE_NUMERIC = 'country_code_numeric'
 COUNTRY_CODE = 'country_code'
@@ -19,6 +20,7 @@ DAY_OF_YEAR = 'day_of_year'
 MISSING_INDICATOR_SUFFIX = '_missing'
 
 CORE_FIELDS = {
+    GEO_CODE: Nominal(),
     COUNTRY: Nominal(),
     REGION: Nominal(),
     DATE: Date(),

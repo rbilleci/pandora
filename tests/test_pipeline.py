@@ -2,15 +2,14 @@ import unittest
 from datetime import date
 from logging import INFO, basicConfig, info
 
-import numpy as np
 import pandas as pd
 from category_encoders import BinaryEncoder
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import SGDRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVR
 
 from data import country_code, geo, continent, age_distribution, population, temperatures, oxford_data, working_day
 from data.age_distribution import AGE_DISTRIBUTION_1, AGE_DISTRIBUTION_2, AGE_DISTRIBUTION_3, AGE_DISTRIBUTION_4, \
@@ -22,13 +21,21 @@ from data.population import POPULATION, POPULATION_DENSITY, OBESITY_RATE, POPULA
 from data.temperatures import SPECIFIC_HUMIDITY, TEMPERATURE
 from data.working_day import WORKING_DAY
 from pandora import loader, imputer
-from pandora.core_fields import COUNTRY_CODE, REGION, DATE, DAY_OF_WEEK, DAY_OF_MONTH, DAY_OF_YEAR, MONTH, QUARTER, YEAR
+from pandora.core_fields import COUNTRY_CODE, REGION, DATE, DAY_OF_WEEK, DAY_OF_MONTH, DAY_OF_YEAR, MONTH, QUARTER, \
+    YEAR, GEO_CODE
+from pandora.encoders import CyclicalEncoder
 
 basicConfig(level=INFO, format='%(asctime)s\t%(levelname)s\t%(filename)s\t%(message)s')
 
 pd.options.display.max_columns = None
 pd.options.display.max_rows = None
 pd.options.display.max_info_columns = 1000
+
+import warnings
+
+warnings.filterwarnings('ignore', category=FutureWarning)  # ignore FutureWarning from scikit learn
+
+PREDICTED_NEW_CASES = 'new_cases'
 
 
 class PipelineTestCase(unittest.TestCase):
@@ -54,9 +61,18 @@ class PipelineTestCase(unittest.TestCase):
 
         # derive the label columns, and move new cases to the front
         info('calculating label')
-        df = df.groupby([COUNTRY_CODE, REGION]).apply(self.determine_new_cases).reset_index(drop=True)
+        df = df.groupby(GEO_CODE).apply(self.determine_new_cases).reset_index(drop=True)
+        df = df.groupby(GEO_CODE).apply(lambda group: group_add_ma_a(group, PREDICTED_NEW_CASES)).reset_index(drop=True)
+        df = df.groupby(GEO_CODE).apply(lambda group: group_add_ma_b(group, PREDICTED_NEW_CASES)).reset_index(drop=True)
+        df = df.groupby(GEO_CODE).apply(lambda group: group_add_ma_c(group, PREDICTED_NEW_CASES)).reset_index(drop=True)
+        df = df.groupby(GEO_CODE).apply(lambda group: group_add_ma_a(group, CONFIRMED_CASES)).reset_index(drop=True)
+        df = df.groupby(GEO_CODE).apply(lambda group: group_add_ma_b(group, CONFIRMED_CASES)).reset_index(drop=True)
+        df = df.groupby(GEO_CODE).apply(lambda group: group_add_ma_c(group, CONFIRMED_CASES)).reset_index(drop=True)
+        df = df.groupby(GEO_CODE).apply(lambda group: add_working_day_tomorrow(group)).reset_index(drop=True)
+        df = df.groupby(GEO_CODE).apply(lambda group: add_working_day_yesterday(group)).reset_index(drop=True)
+
+        # move the label to the front
         df = transform_column_order(df)
-        df.info()
 
         # create the pipeline
         info('creating pipeline')
@@ -65,9 +81,18 @@ class PipelineTestCase(unittest.TestCase):
                 # geographic location
                 nominal(CONTINENT),
                 nominal(COUNTRY_CODE),
-                nominal(REGION),
+                # it is important to have the geo code, to help distinguish from different countries with no regions,
+                # otherwise, if we only use a region code, all countries have the same 0 value. This way, we do not
+                # need to rely on the algorithm determining this from the combo of country + region. we make it explicit
+                nominal(GEO_CODE),
                 # case information
+                numeric(PREDICTED_NEW_CASES + SUFFIX_MA_A),
+                numeric(PREDICTED_NEW_CASES + SUFFIX_MA_B),
+                numeric(PREDICTED_NEW_CASES + SUFFIX_MA_C),
                 numeric(CONFIRMED_CASES),
+                numeric(CONFIRMED_CASES + SUFFIX_MA_A),
+                numeric(CONFIRMED_CASES + SUFFIX_MA_B),
+                numeric(CONFIRMED_CASES + SUFFIX_MA_C),
                 # non-pharmaceutical interventions
                 numeric(C1),
                 numeric(C2),
@@ -96,50 +121,60 @@ class PipelineTestCase(unittest.TestCase):
                 numeric(SPECIFIC_HUMIDITY),
                 numeric(TEMPERATURE),
                 numeric(WORKING_DAY),
+                numeric(WORKING_DAY + '_tomorrow'),
+                numeric(WORKING_DAY + '_yesterday'),
                 # date/time fields
-                numeric(DATE),
-                numeric(DAY_OF_MONTH),
-                numeric(DAY_OF_WEEK),
+                # numeric(DATE),
+                # numeric(DAY_OF_MONTH),
+                nominal(DAY_OF_WEEK),
                 numeric(DAY_OF_YEAR),
-                numeric(MONTH),
-                numeric(QUARTER),
-                numeric(YEAR)
+                # numeric(WEEK),
+                # numeric(MONTH),
+                # numeric(QUARTER),
+                # numeric(YEAR)
             ])),
-            ('logistic', LogisticRegression(max_iter=10000, tol=0.1))
+            ('estimator', SGDRegressor(max_iter=10000,
+                                       early_stopping=True,
+                                       n_iter_no_change=2000,
+                                       shuffle=True))
         ])
 
         info('getting train/val/test split')
         train, val, test = split(df, 30, 1)
         train_x, train_y, validation_x, validation_y, test_x, test_y = (train.iloc[:, 1:], train.iloc[:, :1],
                                                                         val.iloc[:, 1:], val.iloc[:, :1],
-
                                                                         test.iloc[:, 1:], test.iloc[:, :1])
-        info('fitting pipeline')
 
         # split our dataset
-        parameters = {'logistic__C': np.logspace(-4, 4, 4)}
-        grid = GridSearchCV(pipeline, param_grid=parameters, cv=5, verbose=1)
+        parameters = {
+            'estimator__alpha': [0.0015, 0.0002, 0.0004],
+            'estimator__epsilon': [0.0025, 0.005, 0.0075],
+            'estimator__loss': ['squared_loss', 'huber', 'epsilon_insensitive', 'squared_epsilon_insensitive'],
+            'estimator__learning_rate': ['invscaling', 'adaptive', 'optimal', 'constant']
+        }
+        grid = GridSearchCV(pipeline,
+                            param_grid=parameters,
+                            cv=5,
+                            scoring='neg_root_mean_squared_error',
+                            n_jobs=10,
+                            verbose=10)
         grid.fit(train_x, train_y.values.ravel())
-
-        print("score = %3.2f" % (grid.score(validation_x, validation_y)))
-
-        """
-        pipeline.fit(train_x, train_y)
-        info('predicting validation')
-        predictions = pipeline.predict(validation_x)
-        info('generating error')
-        mse0 = (np.square(predictions - validation_y)).mean(axis=0)
-        mse1 = (np.square(predictions - validation_y)).mean(axis=1)
-        mse2 = (np.square(predictions - validation_y)).mean(axis=2)
-        print(mse0)
-        print(mse1)
-        print(mse2)
-        """
+        print("score A = %3.2f" % (grid.score(validation_x, validation_y.values.ravel())))
+        print("score B = %3.2f" % (grid.estimator.score(validation_x, validation_y.values.ravel())))
+        print("score C = %3.2f" % (grid.best_estimator_.score(validation_x, validation_y.values.ravel())))
+        print(grid.best_score_)
+        print(grid.best_params_)
 
     @staticmethod
     def determine_new_cases(grouped):
-        grouped['new_cases'] = grouped[CONFIRMED_CASES].copy()
-        grouped['new_cases'] = grouped['new_cases'].diff(-1).fillna(0.0).apply(lambda x: max(0, -x))
+        grouped[PREDICTED_NEW_CASES] = grouped[CONFIRMED_CASES].copy()
+        grouped[PREDICTED_NEW_CASES] = grouped[PREDICTED_NEW_CASES].diff(-1).fillna(0.0).apply(lambda x: max(0, -x))
+        return grouped
+
+    @staticmethod
+    def determine_moving_averages(grouped):
+        grouped[PREDICTED_NEW_CASES] = grouped[CONFIRMED_CASES].copy()
+        grouped[PREDICTED_NEW_CASES] = grouped[PREDICTED_NEW_CASES].diff(-1).fillna(0.0).apply(lambda x: max(0, -x))
         return grouped
 
 
@@ -183,9 +218,9 @@ def split(df: pd.DataFrame, days_for_validation: int, days_for_test: int) -> (pd
 
 def transform_column_order(df: pd.DataFrame) -> pd.DataFrame:
     df = df.reindex(sorted(df.columns), axis=1)  # Sort columns by name
-    df_label = df['new_cases']
-    df = df.drop(labels=['new_cases'], axis=1)
-    df.insert(0, 'new_cases', df_label)
+    df_label = df[PREDICTED_NEW_CASES]
+    df = df.drop(labels=[PREDICTED_NEW_CASES], axis=1)
+    df.insert(0, PREDICTED_NEW_CASES, df_label)
     return df
 
 
@@ -198,3 +233,42 @@ class DataFrameSelector(BaseEstimator, TransformerMixin):
 
     def transform(self, x):
         return x[self.attribute_names]
+
+
+MA_WINDOW_A = 3
+MA_WINDOW_B = 7
+MA_WINDOW_C = 21
+SUFFIX_MA_A = '_MA_A'
+SUFFIX_MA_B = '_MA_B'
+SUFFIX_MA_C = '_MA_C'
+
+
+def group_add_ma_a(grouped, name: str):
+    return group_add_ma_n(grouped, name, SUFFIX_MA_A, MA_WINDOW_A)
+
+
+def group_add_ma_b(grouped, name: str):
+    return group_add_ma_n(grouped, name, SUFFIX_MA_B, MA_WINDOW_B)
+
+
+def group_add_ma_c(grouped, name: str):
+    return group_add_ma_n(grouped, name, SUFFIX_MA_C, MA_WINDOW_C)
+
+
+def group_add_ma_n(grouped, name: str, suffix: str, window: int):
+    name_ma = name + suffix
+    # shift by 1 so we look only at past days
+    # NOTE: the shift is also important so we don't include today's predicted data in the value
+    grouped[name_ma] = grouped[name].copy().shift(1).bfill().ffill()  # NOTE copy is needed?
+    grouped[name_ma] = grouped[name_ma].rolling(window=window, min_periods=1).mean().bfill().ffill()
+    return grouped
+
+
+def add_working_day_tomorrow(grouped):
+    grouped[WORKING_DAY + '_tomorrow'] = grouped[WORKING_DAY].copy().shift(-1).bfill().ffill()  # NOTE copy is needed?
+    return grouped
+
+
+def add_working_day_yesterday(grouped):
+    grouped[WORKING_DAY + '_yesterday'] = grouped[WORKING_DAY].copy().shift(1).bfill().ffill()  # NOTE copy is needed?
+    return grouped

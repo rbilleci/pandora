@@ -6,7 +6,7 @@ import pandas as pd
 
 from data.country_code import COUNTRY_CODE
 from pandora.core_fields import COUNTRY, REGION, WEEK, MONTH, QUARTER, YEAR, DAY_OF_MONTH, DAY_OF_WEEK, \
-    DAY_OF_YEAR, DATE, CORE_FIELDS, COUNTRY_CODE3
+    DAY_OF_YEAR, DATE, CORE_FIELDS, COUNTRY_CODE3, GEO_CODE
 from pandora.core_types import Numeric, Ordinal, Nominal, Boolean, Date, Field
 
 
@@ -31,6 +31,9 @@ def load(start_date: datetime.date,
     info('merging data files')
     for data_source in data_sources:
         df, schema = merge(df, schema, data_source, datetime_index)
+
+    info('adding geo_code')
+    df[GEO_CODE] = df[[COUNTRY, REGION]].apply(resolve_geo_code, axis=1)
 
     info('reindexing')
     df = df.reindex(sorted(df.columns), axis=1)
@@ -133,3 +136,7 @@ def resolve_region_key(df: pd.DataFrame) -> Optional[str]:
         return REGION
     else:
         return None
+
+
+def resolve_geo_code(x: pd.DataFrame):
+    return x[COUNTRY] if x[REGION] == '' else (x[COUNTRY] + '/' + x[REGION])
