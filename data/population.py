@@ -1,47 +1,8 @@
 import pathlib
 
-from pandora.core_types import Numeric, Nominal, Imputation
+from pandora.core_fields import REGION_NAME, YEAR, COUNTRY_NAME
+from pandora.core_types import Module, Imputation
 from pandora.imputers import impute_with_mean, impute_with_max
-from pandora.core_fields import COUNTRY, REGION, YEAR, COUNTRY_CODE
-
-population_density_imputations = [
-    Imputation(impute_with_max, [REGION, COUNTRY_CODE]),  # fallback to max for the same country and region
-    Imputation(impute_with_max, [COUNTRY_CODE]),  # fallback to max for the same country
-    Imputation(impute_with_mean, [YEAR]),  # fallback to the max population density globally, for the year
-    Imputation(impute_with_mean, [])  # fallback to the average population density globally, for all years
-]
-
-population_imputations = [
-    Imputation(impute_with_max, [REGION, COUNTRY_CODE])  # fallback to max population for the same country and region
-]
-
-population_percent_urban_imputations = [
-    Imputation(impute_with_max, [REGION, COUNTRY_CODE]),  # fallback to max for the same country and region
-    Imputation(impute_with_max, [COUNTRY_CODE]),  # fallback to max for the same country
-    Imputation(impute_with_mean, [YEAR]),  # fallback to the mean for the year
-    Imputation(impute_with_mean, [])  # fallback to the mean across all years
-]
-
-gdp_per_capita_imputations = [
-    Imputation(impute_with_max, [REGION, COUNTRY_CODE]),  # fallback to max for the same country and region
-    Imputation(impute_with_max, [COUNTRY_CODE]),  # fallback to max for the same country
-    Imputation(impute_with_mean, [YEAR]),  # fallback to the mean for the year
-    Imputation(impute_with_mean, [])  # fallback to the mean across all years
-]
-
-obesity_rate_imputations = [
-    Imputation(impute_with_mean, [REGION, COUNTRY_CODE]),  # fallback to average
-    Imputation(impute_with_mean, [COUNTRY_CODE]),  # fallback to average for the same country
-    Imputation(impute_with_mean, [YEAR]),  # fallback to the mean for the year
-    Imputation(impute_with_mean, [])  # fallback to the mean across all years
-]
-
-pneumonia_deaths_per_100k_imputations = [
-    Imputation(impute_with_mean, [REGION, COUNTRY_CODE]),  # fallback to average
-    Imputation(impute_with_mean, [COUNTRY_CODE]),  # fallback to average for the same country
-    Imputation(impute_with_mean, [YEAR]),  # fallback to the mean for the year
-    Imputation(impute_with_mean, [])  # fallback to the mean across all years
-]
 
 POPULATION = 'population'
 POPULATION_DENSITY = 'population_density'
@@ -50,16 +11,48 @@ GDP_PER_CAPITA = 'gdp_per_capita'
 OBESITY_RATE = 'obesity_rate'
 PNEUMONIA_DEATHS_PER_100K = 'pneumonia_deaths_per_100k'
 
-LOCATION = f"{pathlib.Path(__file__).parent.absolute()}/population.csv"
+module = Module(
+    f"{pathlib.Path(__file__).parent.absolute()}/population.csv",
+    imputations={
+        POPULATION: [
+            Imputation(impute_with_max, [REGION_NAME, COUNTRY_NAME])
+            # fallback to max population for the same country and region
 
-FIELDS = {
-    COUNTRY: Nominal(),
-    REGION: Nominal(),
-    YEAR: Numeric(-1e4, 1e4),
-    POPULATION: Numeric(0.0, 2e9, imputations=population_imputations),
-    POPULATION_DENSITY: Numeric(0.0, 1e5, imputations=population_density_imputations),
-    POPULATION_PERCENT_URBAN: Numeric(0.0, 100.0, imputations=population_percent_urban_imputations),
-    GDP_PER_CAPITA: Numeric(0.0, 1e6, imputations=gdp_per_capita_imputations),
-    OBESITY_RATE: Numeric(0.0, 100.0, imputations=obesity_rate_imputations),
-    PNEUMONIA_DEATHS_PER_100K: Numeric(0.0, 1e4, imputations=pneumonia_deaths_per_100k_imputations)
-}
+        ],
+        POPULATION_DENSITY: [
+            Imputation(impute_with_max, [REGION_NAME, COUNTRY_NAME]),  # fallback to max for the same country and region
+            Imputation(impute_with_max, [COUNTRY_NAME]),  # fallback to max for the same country
+            Imputation(impute_with_mean, [YEAR]),  # fallback to the max population density globally, for the year
+            Imputation(impute_with_mean, [])  # fallback to the average population density globally, for all years
+        ],
+        POPULATION_PERCENT_URBAN: [
+            Imputation(impute_with_max, [REGION_NAME, COUNTRY_NAME]),  # fallback to max for the same country and region
+            Imputation(impute_with_max, [COUNTRY_NAME]),  # fallback to max for the same country
+            Imputation(impute_with_mean, [YEAR]),  # fallback to the mean for the year
+            Imputation(impute_with_mean, [])  # fallback to the mean across all years
+        ],
+        GDP_PER_CAPITA: [
+            Imputation(impute_with_max, [REGION_NAME, COUNTRY_NAME]),  # fallback to max for the same country and region
+            Imputation(impute_with_max, [COUNTRY_NAME]),  # fallback to max for the same country
+            Imputation(impute_with_mean, [YEAR]),  # fallback to the mean for the year
+            Imputation(impute_with_mean, [])  # fallback to the mean across all years
+        ],
+        OBESITY_RATE: [
+            Imputation(impute_with_mean, [REGION_NAME, COUNTRY_NAME]),  # fallback to average
+            Imputation(impute_with_mean, [COUNTRY_NAME]),  # fallback to average for the same country
+            Imputation(impute_with_mean, [YEAR]),  # fallback to the mean for the year
+            Imputation(impute_with_mean, [])  # fallback to the mean across all years
+        ],
+        PNEUMONIA_DEATHS_PER_100K: [
+            Imputation(impute_with_mean, [REGION_NAME, COUNTRY_NAME]),  # fallback to average
+            Imputation(impute_with_mean, [COUNTRY_NAME]),  # fallback to average for the same country
+            Imputation(impute_with_mean, [YEAR]),  # fallback to the mean for the year
+            Imputation(impute_with_mean, [])  # fallback to the mean across all years
+        ]
+    },
+    mark_missing=[POPULATION,
+                  POPULATION_DENSITY,
+                  POPULATION_PERCENT_URBAN,
+                  GDP_PER_CAPITA,
+                  OBESITY_RATE,
+                  PNEUMONIA_DEATHS_PER_100K])

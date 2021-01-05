@@ -1,18 +1,63 @@
-# Data File Reference
+# Date Preparation Pipeline
 
-### Standard Fields
+First, the geo file is loaded which is a list of countries and regions. The dataset is expanded to the time range.
 
-##### Standard Geographic Field
+Additional data modules are loaded, with each data module going through the following steps:
 
-The following geographic fields are available to represent your data:
+1. file loaded
+2. filter
+3. time expansion
+4. date/time fields added
+4. missing values marked
+5. missing values imputed
+6. filtered to time range
+7. validated
+8. merged
 
-* **country**
-* **region**
+Any data that is derived from multiple datasets must be performed in the ML Pipeline. This isolates data modules and
+allows for derived features to take advantage of hyper-parameter searching. For example, if we have a derived feature
+that is a moving average of another feature, the time period of the moving average can be defined as a hyper-parameter,
+and the optimal value will be searched for during training.
 
-Along with the above fields, system will automatically derive a **continent** field that may be used in your machine
-learning model.
+# ML Pipeline
 
-##### Standard Date Fields
+...
+
+# Data Module Reference
+
+Each Data Module includes the following:
+
+1. a Python file containing constants for each field, location of the dataset, and standard code for missing value
+   imputation
+2. a file containing the actual dataset; in any format supported by [Pandas](https://pandas.pydata.org/)
+3. an __optional__ Python file that can update its dataset, for example, by downloading the latest data from the
+   internet or performing some preprocessing that might change over time. The system does __not__ execute the update
+   script automatically.
+
+### Standard Data Module Fields
+
+##### Standard Geo Fields
+
+Every data module may designate one or more fields that indicate the data records are related to a country and or
+region. If none of the fields below are specified, the data is assumed to apply to all countries and regions.
+
+The field names to use are:
+
+* **For the country:** use one of `country_code`, `country_code3`, or
+  `country_code_numeric` - the code fields use the ISO-3166 two-letter, three-letter, and numeric codes. 
+  You may identify the country with `country_name`, but it is not preferred since a difference in more difficult to match
+* **For the state or province:** use `region_name`
+
+A single data file may have records both at a country level and at a regional level, for example:
+
+| country_code | region_name | population | 
+| --- | --- | --- |
+| DE |  | 83,000,000 |
+| DE | Bavaria | 13,000,000 |
+| DE | Berlin | 3,650,000 |
+| IT |  | 60,000,000 |
+
+##### Standard Date/Time Fields
 
 The following date fields can be specified in a record:
 
@@ -25,7 +70,9 @@ The following date fields can be specified in a record:
 * **day_of_month** - used to specify the day of month for a record.
 * **day_of_week** - used to specify the day of a given week. Valid values are from 1-7, where 1 = Monday and 7 = Sunday
 
-Depending on the type of data you are merging into your dataset, you may use different fields.
+When the data module is loaded, the records are expanded to fill at least the time range used for training, then
+enhanced with all date/time fields listed above. This enables missing value imputation based on trends related to a day
+of year, week, month, or quarter.
 
 ##### Examples of modeling dates
 

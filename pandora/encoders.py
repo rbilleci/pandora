@@ -1,13 +1,10 @@
 import math
 from abc import ABC, abstractmethod
-
-import fnvhash
-from typing import Dict, Optional
+from typing import Optional
 
 import category_encoders as ce
+import fnvhash
 import pandas as pd
-
-from pandora.core_types import Field, Numeric
 
 
 class Encoder(ABC):
@@ -19,7 +16,7 @@ class Encoder(ABC):
         return self._name
 
     @abstractmethod
-    def fit_transform(self, df: pd.DataFrame, schema: Dict[str, Field]) -> (pd.DataFrame, Dict[str, Field]):
+    def fit_transform(self, df: pd.DataFrame) -> pd.DataFrame:
         raise RuntimeError('unimplemented')
 
     @abstractmethod
@@ -37,12 +34,11 @@ class CEEncoder(Encoder, ABC):
         self._maximum = maximum
 
     def fit_transform(self,
-                      df: pd.DataFrame,
-                      schema: Dict[str, Field]) -> (pd.DataFrame, Dict[str, Field]):
+                      df: pd.DataFrame) -> pd.DataFrame:
         df_encoded = self._internal_encoder.fit_transform(df[self.name])
         df_encoded = df_encoded.drop(columns=['intercept'], errors='ignore')
         df_encoded = self.update_column_names(df_encoded)
-        return df.join(df_encoded), self.update_schema(df_encoded, schema)
+        return df.join(df_encoded)
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         df_encoded = self._internal_encoder.transform(df[self.name])
@@ -57,13 +53,6 @@ class CEEncoder(Encoder, ABC):
         df_encoded = df_encoded.rename(columns=lambda s: s.replace(col, old, 1) if s.startswith(col) else s)
         df_encoded = df_encoded.rename(columns=lambda s: s.replace(old, new, 1))
         return df_encoded
-
-    def update_schema(self, df_encoded: pd.DataFrame, schema) -> Dict[str, Field]:
-        schema = dict(schema)
-        for name in df_encoded.columns:
-            schema.update({name: Numeric(self._minimum,
-                                         self._maximum if self._maximum else df_encoded[name].max())})
-        return schema
 
 
 class BinaryEncoder(CEEncoder):
@@ -110,8 +99,8 @@ class CyclicalEncoder(Encoder):
     def __init__(self, name: str):
         super().__init__(name)
 
-    def fit_transform(self, df: pd.DataFrame, schema: Dict[str, Field]) -> (pd.DataFrame, Dict[str, Field]):
-        return self.transform(df), self.update_schema(schema)
+    def fit_transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        return self.transform(df)
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         if df[f"{self.name}"].max() > 1.0 or df[f"{self.name}"].min() < 0.0:
@@ -119,12 +108,6 @@ class CyclicalEncoder(Encoder):
         df[f"{self.name}_sin"] = df[self.name].map(lambda x: math.sin(2 * math.pi * x))
         df[f"{self.name}_cos"] = df[self.name].map(lambda x: math.cos(2 * math.pi * x))
         return df
-
-    def update_schema(self, schema: Dict[str, Field]) -> (pd.DataFrame, Dict[str, Field]):
-        schema = dict(schema)
-        schema.update({f"{self.name}_sin": Numeric(-1.0, 1.0)})
-        schema.update({f"{self.name}_cos": Numeric(-1.0, 1.0)})
-        return schema
 
 
 class BloomFilterEncoder(CEEncoder):
@@ -141,9 +124,9 @@ class BloomFilterEncoder(CEEncoder):
     def bits(self):
         return self._bits
 
-    def fit_transform(self, df: pd.DataFrame, schema: Dict[str, Field]) -> (pd.DataFrame, Dict[str, Field]):
+    def fit_transform(self, df: pd.DataFrame) -> pd.DataFrame:
         df_encoded = self.transform(df)
-        return df.join(df_encoded), super().update_schema(df_encoded, schema)
+        return df.join(df_encoded)
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         df_encoded = pd.DataFrame()

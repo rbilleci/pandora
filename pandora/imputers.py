@@ -19,3 +19,11 @@ def impute_with_min(df: pd.DataFrame, name):
 
 def impute_with_forward_fill(df: pd.DataFrame, column_name):
     return df[column_name].ffill().fillna(0)
+
+
+def impute_with_zero(df: pd.DataFrame, name):
+    return df[name].fillna(0)
+
+
+def impute_with_empty_string(df: pd.DataFrame, name):
+    return df[name].fillna('')

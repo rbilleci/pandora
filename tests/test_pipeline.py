@@ -9,7 +9,6 @@ from sklearn.linear_model import SGDRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVR
 
 from data import country_code, geo, continent, age_distribution, population, temperatures, oxford_data, working_day
 from data.age_distribution import AGE_DISTRIBUTION_1, AGE_DISTRIBUTION_2, AGE_DISTRIBUTION_3, AGE_DISTRIBUTION_4, \
@@ -20,16 +19,15 @@ from data.population import POPULATION, POPULATION_DENSITY, OBESITY_RATE, POPULA
     PNEUMONIA_DEATHS_PER_100K, GDP_PER_CAPITA
 from data.temperatures import SPECIFIC_HUMIDITY, TEMPERATURE
 from data.working_day import WORKING_DAY
-from pandora import loader, imputer
-from pandora.core_fields import COUNTRY_CODE, REGION, DATE, DAY_OF_WEEK, DAY_OF_MONTH, DAY_OF_YEAR, MONTH, QUARTER, \
-    YEAR, GEO_CODE
-from pandora.encoders import CyclicalEncoder
+from pandora import loader
+from pandora.core_fields import COUNTRY_CODE, DATE, DAY_OF_WEEK, DAY_OF_YEAR, GEO_CODE
 
 basicConfig(level=INFO, format='%(asctime)s\t%(levelname)s\t%(filename)s\t%(message)s')
 
 pd.options.display.max_columns = None
 pd.options.display.max_rows = None
 pd.options.display.max_info_columns = 1000
+
 
 import warnings
 
@@ -44,20 +42,17 @@ class PipelineTestCase(unittest.TestCase):
         # load the dataset
         start_date = date(2020, 1, 1)
         end_date = date(2020, 12, 31)
-        df, schema = loader.load(start_date,
-                                 end_date,
-                                 geo,
-                                 [
-                                     country_code,
-                                     continent,
-                                     population,
-                                     age_distribution,
-                                     temperatures,
-                                     oxford_data,
-                                     working_day,
-                                 ])
-        # impute
-        df, schema = imputer.impute(df, schema)
+        df = loader.load(start_date, end_date,
+                         geo.module,
+                         [
+                             country_code.module,
+                             continent.module,
+                             population.module,
+                             age_distribution.module,
+                             temperatures.module,
+                             oxford_data.module,
+                             working_day.module
+                         ])
 
         # derive the label columns, and move new cases to the front
         info('calculating label')

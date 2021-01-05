@@ -1,11 +1,8 @@
 import pathlib
 
-from pandora.core_fields import COUNTRY, REGION, DATE, COUNTRY_CODE
-from pandora.imputers import impute_with_forward_fill
-from pandora.core_types import Ordinal, Imputation, Numeric, Nominal, Date
-
-FILE = "oxford_data.csv"
-LOCATION = f"{pathlib.Path(__file__).parent.absolute()}/{FILE}"
+from pandora.core_fields import REGION_NAME, COUNTRY_NAME
+from pandora.core_types import Module, Imputation
+from pandora.imputers import impute_with_forward_fill, impute_with_zero
 
 CONFIRMED_CASES = 'confirmed_cases'
 CONFIRMED_DEATHS = 'confirmed_deaths'
@@ -22,31 +19,35 @@ H2 = 'h2_testing_policy'
 H3 = 'h3_contact_tracing'
 H6 = 'h6_facial_coverings'
 
-geo_imputations = [
-    Imputation(impute_with_forward_fill, [REGION, COUNTRY_CODE])
+GEO_IMPUTATION_STRATEGY = [
+    Imputation(impute_with_forward_fill, [REGION_NAME, COUNTRY_NAME])
 ]
 
-npi_imputations = [
-    Imputation(impute_with_forward_fill, [REGION, COUNTRY_CODE]),
-    Imputation(impute_with_forward_fill, [COUNTRY_CODE])
+NPI_IMPUTATION_STRATEGY = [
+    Imputation(impute_with_forward_fill, [REGION_NAME, COUNTRY_NAME]),
+    Imputation(impute_with_forward_fill, [COUNTRY_NAME]),
+    Imputation(impute_with_zero, [])
 ]
 
-FIELDS = {
-    COUNTRY: Nominal(),
-    REGION: Nominal(),
-    DATE: Date(),
-    CONFIRMED_CASES: Numeric(0.0, 2e9, imputations=geo_imputations),
-    CONFIRMED_DEATHS: Numeric(0.0, 1e8, imputations=geo_imputations),
-    C1: Ordinal(0, 3, imputations=npi_imputations),
-    C2: Ordinal(0, 3, imputations=npi_imputations),
-    C3: Ordinal(0, 2, imputations=npi_imputations),
-    C4: Ordinal(0, 4, imputations=npi_imputations),
-    C5: Ordinal(0, 2, imputations=npi_imputations),
-    C6: Ordinal(0, 3, imputations=npi_imputations),
-    C7: Ordinal(0, 2, imputations=npi_imputations),
-    C8: Ordinal(0, 4, imputations=npi_imputations),
-    H1: Ordinal(0, 2, imputations=npi_imputations),
-    H2: Ordinal(0, 3, imputations=npi_imputations),
-    H3: Ordinal(0, 2, imputations=npi_imputations),
-    H6: Ordinal(0, 4, imputations=npi_imputations)
-}
+FILE = "oxford_data.csv"
+LOCATION = f"{pathlib.Path(__file__).parent.absolute()}/{FILE}"
+
+module = Module(
+    LOCATION,
+    imputations={
+        CONFIRMED_CASES: GEO_IMPUTATION_STRATEGY,
+        CONFIRMED_DEATHS: GEO_IMPUTATION_STRATEGY,
+        C1: NPI_IMPUTATION_STRATEGY,
+        C2: NPI_IMPUTATION_STRATEGY,
+        C3: NPI_IMPUTATION_STRATEGY,
+        C4: NPI_IMPUTATION_STRATEGY,
+        C5: NPI_IMPUTATION_STRATEGY,
+        C6: NPI_IMPUTATION_STRATEGY,
+        C7: NPI_IMPUTATION_STRATEGY,
+        C8: NPI_IMPUTATION_STRATEGY,
+        H1: NPI_IMPUTATION_STRATEGY,
+        H2: NPI_IMPUTATION_STRATEGY,
+        H3: NPI_IMPUTATION_STRATEGY,
+        H6: NPI_IMPUTATION_STRATEGY,
+    },
+    mark_missing=[CONFIRMED_CASES])

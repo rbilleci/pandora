@@ -7,12 +7,13 @@ from logging import info
 
 import pandas as pd
 
-from data.oxford_data import LOCATION, FILE, COUNTRY, REGION, DATE, CONFIRMED_CASES, C1, C2, C3, C4, C5, C6, C7, C8, \
-    H1, H2, H3, H6, CONFIRMED_DEATHS
+from pandora.core_fields import COUNTRY_NAME, REGION_NAME, DATE
+from data.oxford_data import LOCATION, FILE, CONFIRMED_CASES, \
+    C1, C2, C3, C4, C5, C6, C7, C8, H1, H2, H3, H6, CONFIRMED_DEATHS
 
 EXTERNAL_LOCATION = "https://github.com/OxCGRT/covid-policy-tracker/raw/master/data/OxCGRT_latest.csv"
 LOCATION_FOR_PREPROCESSING = f"{pathlib.Path(__file__).parent.absolute()}/{FILE}.tmp"
-ACCEPTED_COLUMNS = [COUNTRY, REGION, DATE,
+ACCEPTED_COLUMNS = [COUNTRY_NAME, REGION_NAME, DATE,
                     CONFIRMED_CASES, CONFIRMED_DEATHS,
                     C1, C2, C3, C4, C5, C6, C7, C8,
                     H1, H2, H3, H6]
@@ -36,8 +37,6 @@ def rename_column(name: str) -> str:
     name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
     name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', name)
     name = name.replace(' ', '_').replace('__', '_').lower()
-    # remove '_name' suffix
-    name = name.replace('_name', '')
     return name
 
 

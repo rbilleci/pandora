@@ -1,10 +1,5 @@
 import pathlib
 
-from pandora.core_fields import *
+from pandora.core_types import Module
 
-LOCATION = f"{pathlib.Path(__file__).parent.absolute()}/geo.csv"
-
-FIELDS = {
-    COUNTRY_CODE: Nominal(),
-    REGION: Nominal()
-}
+module = Module(f"{pathlib.Path(__file__).parent.absolute()}/geo.csv")

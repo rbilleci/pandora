@@ -1,13 +1,11 @@
 from calendar import monthrange, isleap
 
-from pandora.core_types import Nominal, Date, Numeric
-
 GEO_CODE = 'geo_code'
-COUNTRY = 'country'
+COUNTRY_NAME = 'country_name'
 COUNTRY_CODE_NUMERIC = 'country_code_numeric'
 COUNTRY_CODE = 'country_code'
 COUNTRY_CODE3 = 'country_code3'
-REGION = 'region'
+REGION_NAME = 'region_name'
 DATE = 'date'
 YEAR = 'year'
 QUARTER = 'quarter'
@@ -17,21 +15,7 @@ DAY_OF_WEEK = 'day_of_week'
 DAY_OF_MONTH = 'day_of_month'
 DAY_OF_YEAR = 'day_of_year'
 
-MISSING_INDICATOR_SUFFIX = '_missing'
-
-CORE_FIELDS = {
-    GEO_CODE: Nominal(),
-    COUNTRY: Nominal(),
-    REGION: Nominal(),
-    DATE: Date(),
-    YEAR: Numeric(-1e4, 1e4),
-    QUARTER: Numeric(1, 4),
-    MONTH: Numeric(1, 12),
-    WEEK: Numeric(1, lambda row: scale_week_of_year(row)),
-    DAY_OF_WEEK: Numeric(1, 7),
-    DAY_OF_MONTH: Numeric(1, lambda row: scale_day_of_month(row)),
-    DAY_OF_YEAR: Numeric(1, lambda row: scale_day_of_year(row))
-}
+MISSING_INDICATOR_SUFFIX = '--'
 
 
 def scale_week_of_year(row):

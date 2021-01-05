@@ -1,4 +1,4 @@
-country,region,year,age_distribution_00_04,age_distribution_05_14,age_distribution_15_34,age_distribution_34_64,age_distribution_65_plus
+country_name,region_name,year,age_distribution_00_04,age_distribution_05_14,age_distribution_15_34,age_distribution_34_64,age_distribution_65_plus
 Afghanistan,,2020,0.1457,0.2725,0.3633,0.192,0.0265
 Albania,,2020,0.0578,0.1146,0.3114,0.3692,0.147
 Algeria,,2020,0.115,0.1929,0.3013,0.3234,0.0674

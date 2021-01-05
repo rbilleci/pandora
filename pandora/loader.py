@@ -1,25 +1,96 @@
 from datetime import datetime
 from logging import info
-from typing import Optional, Dict
+from typing import Optional
 
 import pandas as pd
 
-from data.country_code import COUNTRY_CODE
-from pandora.core_fields import COUNTRY, REGION, WEEK, MONTH, QUARTER, YEAR, DAY_OF_MONTH, DAY_OF_WEEK, \
-    DAY_OF_YEAR, DATE, CORE_FIELDS, COUNTRY_CODE3, GEO_CODE
-from pandora.core_types import Numeric, Ordinal, Nominal, Boolean, Date, Field
+from pandora.core_fields import COUNTRY_CODE, COUNTRY_CODE3, COUNTRY_NAME, REGION_NAME, WEEK, MONTH, QUARTER, YEAR, \
+    DAY_OF_MONTH, DAY_OF_WEEK, DAY_OF_YEAR, DATE, GEO_CODE, COUNTRY_CODE_NUMERIC
+from pandora.core_types import Module
+from pandora.imputer import impute
 
 
 def load(start_date: datetime.date,
          end_date: datetime.date,
-         geos: {},
-         data_sources: [{}]) -> (pd.DataFrame, Dict[str, Field]):
-    info('loading geos and expanding to time range')
+         geo_module: Module,
+         modules: [Module]) -> pd.DataFrame:
     datetime_index = pd.date_range(start_date, end_date, freq='D')
-    df = expand(load_source(geos), datetime_index)
-    schema = {**CORE_FIELDS, **geos.FIELDS, }
+    df = load_module(geo_module, datetime_index)
+    df = apply_geo_code_feature(df)
+    df = merge_modules(df, modules, datetime_index)
+    df = df.reindex(sorted(df.columns), axis=1)
+    validate(df)
+    return df
 
-    info('adding date fields')
+
+def merge_modules(df: pd.DataFrame,
+                  modules: [Module],
+                  datetime_index) -> pd.DataFrame:
+    for module in modules:
+        df = merge_module(df, module, datetime_index)
+    return df
+
+
+def merge_module(df: pd.DataFrame,
+                 module: Module,
+                 datetime_index: pd.DatetimeIndex) -> pd.DataFrame:
+    # Modules may have date ranges outside of the datetime index we are evaluating.
+    # Since imputing of missing values may benefit from the additional time range, we perform
+    # an **outer** merge, run the imputations, then trim the records by time, after the imputation
+    df_new = load_module(module, datetime_index)
+    df = df.merge(df_new, on=resolve_merge_keys(df_new), how="outer", suffixes=[None, '_R'])
+
+    # Strip additional columns from the  merge
+    for name in df.columns:
+        if name.endswith('_R'):
+            df = df.drop(name, axis=1)
+
+    # Perform the imputation, then strip any records outside of the datetime_index,
+    df = impute(df, module)
+    df = df[df[DATE].isin(datetime_index)]
+
+    # then strip out any countries or regions not in the dataset, remaining from the merge
+    df = df[~df[COUNTRY_CODE].isnull()]
+    df = df[~df[REGION_NAME].isnull()]
+    return df
+
+
+def load_module(module: Module,
+                datetime_index: pd.DatetimeIndex) -> pd.DataFrame:
+    info(f"{module.location} - loading")
+    df = pd.read_csv(module.location, keep_default_na=False, na_values='')
+    df = apply_key_imputations(df)
+    df = apply_datetime_expansion(df, datetime_index)
+    df = apply_datetime_features(df)
+    return df
+
+
+def apply_datetime_expansion(df: pd.DataFrame,
+                             datetime_index: pd.DatetimeIndex) -> pd.DataFrame:
+    if DATE not in df.columns:
+        expansion_conditions = resolve_expansion_conditions(df)
+        if expansion_conditions:
+            df[DATE] = df.apply(lambda r: datetime_index[pd.eval(expansion_conditions)], axis=1)
+        else:
+            df[DATE] = df.apply(lambda r: datetime_index, axis=1)
+        df = df.explode(DATE, ignore_index=True).reset_index(0, drop=True)
+    df[DATE] = pd.to_datetime(df[DATE])
+    return df
+
+
+def apply_key_imputations(df: pd.DataFrame) -> pd.DataFrame:
+    if REGION_NAME in df.columns:
+        df[REGION_NAME] = df[REGION_NAME].fillna('')
+    return df
+
+
+def apply_geo_code_feature(df: pd.DataFrame) -> pd.DataFrame:
+    df[GEO_CODE] = df[[COUNTRY_CODE, REGION_NAME]].apply(
+        lambda x: x[COUNTRY_CODE] if x[REGION_NAME] == '' else (x[COUNTRY_CODE] + '/' + x[REGION_NAME]), axis=1)
+    return df
+
+
+def apply_datetime_features(df: pd.DataFrame) -> pd.DataFrame:
     df[WEEK] = df[DATE].map(lambda x: x.isocalendar()[1])
     df[MONTH] = df[DATE].map(lambda x: x.month)
     df[QUARTER] = df[DATE].map(lambda x: x.quarter)
@@ -27,74 +98,7 @@ def load(start_date: datetime.date,
     df[DAY_OF_YEAR] = df[DATE].map(lambda x: x.timetuple().tm_yday)
     df[DAY_OF_MONTH] = df[DATE].map(lambda x: x.timetuple().tm_mday)
     df[DAY_OF_WEEK] = df[DATE].map(lambda x: x.weekday() + 1)
-
-    info('merging data files')
-    for data_source in data_sources:
-        df, schema = merge(df, schema, data_source, datetime_index)
-
-    info('adding geo_code')
-    df[GEO_CODE] = df[[COUNTRY, REGION]].apply(resolve_geo_code, axis=1)
-
-    info('reindexing')
-    df = df.reindex(sorted(df.columns), axis=1)
-    return df, schema
-
-
-def merge(df: pd.DataFrame,
-          schema: Dict[str, Field],
-          data_source: {},
-          datetime_index: pd.DatetimeIndex) -> (pd.DataFrame, Dict[str, Field]):
-    info(f"merging {data_source.LOCATION}")
-    df_new = expand(load_source(data_source), datetime_index)
-    df_merge_keys = list({resolve_country_key(df_new),
-                          resolve_region_key(df_new),
-                          DATE}.intersection(df_new))
-    df = df.merge(df_new,
-                  on=df_merge_keys,
-                  how="left",
-                  suffixes=[None, '_R'],
-                  copy=False)
-    for name in df.columns:
-        if name.endswith('_R'):
-            df = df.drop(name, axis=1)
-    return df, {**data_source.FIELDS, **schema}
-
-
-def load_source(source: {}) -> pd.DataFrame:
-    df = pd.read_csv(source.LOCATION,
-                     usecols=source.FIELDS,
-                     keep_default_na=False,
-                     error_bad_lines=True,
-                     memory_map=True,
-                     low_memory=False)
-    for name, field in source.FIELDS.items():
-        df.attrs[f"@{name}"] = field
-        if isinstance(field, Numeric):
-            df[name] = pd.to_numeric(df[name])
-        elif isinstance(field, Ordinal):
-            df[name] = pd.to_numeric(df[name]).astype('Int64')  # nullable
-        elif isinstance(field, Nominal):
-            df[name] = df[name].astype('str')
-        elif isinstance(field, Boolean):
-            df[name] = df[name].astype('boolean')  # nullable
-        elif isinstance(field, Date):
-            df[name] = pd.to_datetime(df[name])
-        else:
-            raise KeyError(name)
     return df
-
-
-def expand(df: pd.DataFrame,
-           datetime_index: pd.DatetimeIndex) -> pd.DataFrame:
-    if DATE in df.columns:
-        return df
-    else:
-        query = resolve_expansion_conditions(df)
-        if query:
-            df[DATE] = df.apply(lambda r: datetime_index[pd.eval(query)], axis=1)
-        else:
-            df[DATE] = df.apply(lambda r: datetime_index, axis=1)
-        return df.explode(DATE, ignore_index=True).reset_index(0, drop=True)
 
 
 def resolve_expansion_conditions(df: pd.DataFrame) -> Optional[str]:
@@ -120,23 +124,26 @@ def resolve_expansion_conditions(df: pd.DataFrame) -> Optional[str]:
         return None
 
 
-def resolve_country_key(df: pd.DataFrame) -> Optional[str]:
+def resolve_merge_keys(df: pd.DataFrame) -> [str]:
+    keys = [DATE]
+    # add country key
     if COUNTRY_CODE in df.columns:
-        return COUNTRY_CODE
+        keys += [COUNTRY_CODE]
     elif COUNTRY_CODE3 in df.columns:
-        return COUNTRY_CODE3
-    elif COUNTRY in df.columns:
-        return COUNTRY
-    else:
-        return None
+        keys += [COUNTRY_CODE3]
+    elif COUNTRY_CODE_NUMERIC in df.columns:
+        keys += [COUNTRY_CODE_NUMERIC]
+    elif COUNTRY_NAME in df.columns:
+        keys += [COUNTRY_NAME]
+    # add region key
+    if REGION_NAME in df.columns:
+        keys += [REGION_NAME]
+    return keys
 
 
-def resolve_region_key(df: pd.DataFrame) -> Optional[str]:
-    if REGION in df.columns:
-        return REGION
-    else:
-        return None
-
-
-def resolve_geo_code(x: pd.DataFrame):
-    return x[COUNTRY] if x[REGION] == '' else (x[COUNTRY] + '/' + x[REGION])
+def validate(df: pd.DataFrame) -> None:
+    info(f"validating fields")
+    for name in df.columns:
+        if df[name].isna().any():
+            print(df[[COUNTRY_CODE, COUNTRY_NAME]].tail(10))
+            raise ValueError(f"{name} has NA values")

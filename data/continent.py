@@ -1,12 +1,7 @@
 import pathlib
 
-from pandora.core_types import Nominal
-from pandora.core_fields import COUNTRY
+from pandora.core_types import Module
 
 CONTINENT = 'continent'
-LOCATION = f"{pathlib.Path(__file__).parent.absolute()}/continent.csv"
 
-FIELDS = {
-    COUNTRY: Nominal(),
-    CONTINENT: Nominal()
-}
+module = Module(f"{pathlib.Path(__file__).parent.absolute()}/continent.csv")
