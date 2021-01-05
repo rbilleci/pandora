@@ -40,9 +40,9 @@ class PipelineTestCase(unittest.TestCase):
     def test_sklearn_pipeline(self):
         # load the dataset
         start_date = date(2020, 1, 1)
-        end_date = date(2020, 12, 31)
-        imputation_window_start_date = date(2020, 1, 1)
-        imputation_window_end_date = date(2020, 12, 31)
+        end_date = date(2021, 1, 3)
+        imputation_window_start_date = date(2019, 1, 1)
+        imputation_window_end_date = end_date
         df = loader.load(start_date,
                          end_date,
                          imputation_window_start_date,
@@ -145,11 +145,18 @@ class PipelineTestCase(unittest.TestCase):
                                                                         test.iloc[:, 1:], test.iloc[:, :1])
 
         # split our dataset
+        """
+        Best so far:
+            -1009.1139305621175
+            {'estimator__alpha': 0.0004, 'estimator__epsilon': 0.0075, 
+            'estimator__learning_rate': 'adaptive', 'estimator__loss': 'squared_epsilon_insensitive'}
+        """
         parameters = {
-            'estimator__alpha': [0.0015, 0.0002, 0.0004],
-            'estimator__epsilon': [0.0025, 0.005, 0.0075],
-            'estimator__loss': ['squared_loss', 'huber', 'epsilon_insensitive', 'squared_epsilon_insensitive'],
-            'estimator__learning_rate': ['invscaling', 'adaptive', 'optimal', 'constant']
+            'estimator__alpha': [0.0003, 0.0004, 0.0006],
+            'estimator__epsilon': [0.004, 0.008, 0.017],
+            'estimator__loss': ['huber', 'squared_epsilon_insensitive'],
+            # ['squared_loss', 'huber', 'epsilon_insensitive', 'squared_epsilon_insensitive'],
+            'estimator__learning_rate': ['invscaling', 'adaptive']  # ['invscaling', 'adaptive', 'optimal', 'constant']
         }
         grid = GridSearchCV(pipeline,
                             param_grid=parameters,
@@ -162,7 +169,6 @@ class PipelineTestCase(unittest.TestCase):
         print("score C = %3.2f" % (grid.best_estimator_.score(validation_x, validation_y.values.ravel())))
         print(grid.best_score_)
         print(grid.best_params_)
-        print("score B = %3.2f" % (grid.estimator.score(validation_x, validation_y.values.ravel())))
 
     @staticmethod
     def determine_new_cases(grouped):
