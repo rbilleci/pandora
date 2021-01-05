@@ -28,7 +28,6 @@ pd.options.display.max_columns = None
 pd.options.display.max_rows = None
 pd.options.display.max_info_columns = 1000
 
-
 import warnings
 
 warnings.filterwarnings('ignore', category=FutureWarning)  # ignore FutureWarning from scikit learn
@@ -42,7 +41,12 @@ class PipelineTestCase(unittest.TestCase):
         # load the dataset
         start_date = date(2020, 1, 1)
         end_date = date(2020, 12, 31)
-        df = loader.load(start_date, end_date,
+        imputation_window_start_date = date(2020, 1, 1)
+        imputation_window_end_date = date(2020, 12, 31)
+        df = loader.load(start_date,
+                         end_date,
+                         imputation_window_start_date,
+                         imputation_window_end_date,
                          geo.module,
                          [
                              country_code.module,
@@ -155,10 +159,10 @@ class PipelineTestCase(unittest.TestCase):
                             verbose=10)
         grid.fit(train_x, train_y.values.ravel())
         print("score A = %3.2f" % (grid.score(validation_x, validation_y.values.ravel())))
-        print("score B = %3.2f" % (grid.estimator.score(validation_x, validation_y.values.ravel())))
         print("score C = %3.2f" % (grid.best_estimator_.score(validation_x, validation_y.values.ravel())))
         print(grid.best_score_)
         print(grid.best_params_)
+        print("score B = %3.2f" % (grid.estimator.score(validation_x, validation_y.values.ravel())))
 
     @staticmethod
     def determine_new_cases(grouped):
