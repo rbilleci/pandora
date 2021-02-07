@@ -26,7 +26,8 @@ def update(start_date, end_date):
     df[WORKING_DAY] = df[WORKING_DAY].map(lambda v: 1 if v else 0 if not v else None)
 
     # persist the CSV
-    df.to_csv(working_day.LOCATION, index=False)
+    info(f"writing to {working_day.module.location}")
+    df.to_csv(working_day.module.location, index=False)
 
 
 def update_for_country_code(group: pd.DataFrame):

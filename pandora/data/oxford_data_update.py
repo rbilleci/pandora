@@ -28,6 +28,7 @@ def update():
                      keep_default_na=False)
     df.columns = map(rename_column, df.columns)
     df = df.drop([column for column in df if column not in ACCEPTED_COLUMNS], axis=1)
+    info(f"writing to {LOCATION}")
     df.to_csv(LOCATION, index=False)
     os.remove(LOCATION_FOR_PREPROCESSING)
 
