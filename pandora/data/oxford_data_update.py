@@ -8,7 +8,7 @@ from logging import info
 import pandas as pd
 
 from pandora.core_fields import COUNTRY_NAME, REGION_NAME, DATE
-from data.oxford_data import LOCATION, FILE, CONFIRMED_CASES, \
+from pandora.data.oxford_data import LOCATION, FILE, CONFIRMED_CASES, \
     C1, C2, C3, C4, C5, C6, C7, C8, H1, H2, H3, H6, CONFIRMED_DEATHS
 
 EXTERNAL_LOCATION = "https://github.com/OxCGRT/covid-policy-tracker/raw/master/data/OxCGRT_latest.csv"

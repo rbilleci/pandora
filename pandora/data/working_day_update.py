@@ -1,10 +1,9 @@
 from logging import info, basicConfig, INFO
 import pandas as pd
 import datetime
-from data import country_code, working_day
-from data.working_day import WORKING_DAY
-from data.country_code import COUNTRY_CODE
-from pandora.core_fields import DATE
+from pandora.data import country_code, working_day
+from pandora.data.working_day import WORKING_DAY
+from pandora.core_fields import DATE, COUNTRY_CODE
 from workalendar.registry import registry
 
 basicConfig(level=INFO, format='%(asctime)s\t%(levelname)s\t%(filename)s\t%(message)s')
@@ -14,7 +13,7 @@ def update(start_date, end_date):
     info(f"updating working days information for {start_date} to {end_date}")
 
     # get the unique list of countries
-    df = pd.DataFrame({COUNTRY_CODE: pd.read_csv(country_code.LOCATION)[COUNTRY_CODE].unique()})
+    df = pd.DataFrame({COUNTRY_CODE: pd.read_csv(country_code.module.location)[COUNTRY_CODE].unique()})
 
     # generate the series of dates for the time range,
     # then explode the dataset so there is one row per date per country
