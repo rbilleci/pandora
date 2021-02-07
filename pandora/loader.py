@@ -68,7 +68,8 @@ def expand(df: pd.DataFrame, expansion_window: pd.DatetimeIndex) -> pd.DataFrame
     else:
         expansion_conditions = resolve_expansion_conditions(df)
         if expansion_conditions:
-            df[DATE] = df.apply(lambda r: expansion_window[pd.eval(expansion_conditions)], axis=1)
+            df[DATE] = df.apply(lambda r: expansion_window[pd.eval(expansion_conditions,
+                                                                   engine='python')], axis=1)
         else:
             df[DATE] = df.apply(lambda r: expansion_window, axis=1)
         df = df.explode(DATE, ignore_index=True).reset_index(0, drop=True)
