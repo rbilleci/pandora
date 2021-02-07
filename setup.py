@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name='pandora',
     version='',
-    packages=['pandora'],
+    packages=find_packages(include=['pandora', 'pandora.*']),
     url='',
     license='',
     author='Richard Billeci',
