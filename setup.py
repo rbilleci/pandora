@@ -8,5 +8,8 @@ setup(
     license='',
     author='Richard Billeci',
     author_email='rick.billeci@gmail.com',
-    description=''
+    description='',
+    package_data={
+        "data": ["*.*"]  # include all files in the data directory
+    }
 )
