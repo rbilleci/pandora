@@ -2,8 +2,8 @@ from distutils.core import setup
 
 setup(
     name='pandora',
-    version='',
-    packages=find_packages(include=['pandora', 'pandora.*']),
+    version='0.1.0',
+    packages=['pandora'],
     url='',
     license='',
     author='Richard Billeci',
