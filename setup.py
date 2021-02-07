@@ -10,6 +10,6 @@ setup(
     author_email='rick.billeci@gmail.com',
     description='',
     package_data={
-        "data": ["*.*"]  # include all files in the data directory
+        "data": ["data/*.*"],  # include all files in the data directory
     }
 )
