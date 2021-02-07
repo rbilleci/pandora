@@ -10,15 +10,17 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.preprocessing import StandardScaler
 
-from data import country_code, geo, continent, age_distribution, population, temperatures, oxford_data, working_day
-from data.age_distribution import AGE_DISTRIBUTION_1, AGE_DISTRIBUTION_2, AGE_DISTRIBUTION_3, AGE_DISTRIBUTION_4, \
+from pandora.data import country_code, geo, continent, age_distribution, population, temperatures, oxford_data, \
+    working_day
+from pandora.data.age_distribution import AGE_DISTRIBUTION_1, AGE_DISTRIBUTION_2, AGE_DISTRIBUTION_3, \
+    AGE_DISTRIBUTION_4, \
     AGE_DISTRIBUTION_5
-from data.continent import CONTINENT
-from data.oxford_data import CONFIRMED_CASES, C1, C2, C3, C4, C5, C6, C7, C8, H1, H2, H3, H6
-from data.population import POPULATION, POPULATION_DENSITY, OBESITY_RATE, POPULATION_PERCENT_URBAN, \
+from pandora.data.continent import CONTINENT
+from pandora.data.oxford_data import CONFIRMED_CASES, C1, C2, C3, C4, C5, C6, C7, C8, H1, H2, H3, H6
+from pandora.data.population import POPULATION, POPULATION_DENSITY, OBESITY_RATE, POPULATION_PERCENT_URBAN, \
     PNEUMONIA_DEATHS_PER_100K, GDP_PER_CAPITA
-from data.temperatures import SPECIFIC_HUMIDITY, TEMPERATURE
-from data.working_day import WORKING_DAY
+from pandora.data.temperatures import SPECIFIC_HUMIDITY, TEMPERATURE
+from pandora.data.working_day import WORKING_DAY
 from pandora import loader
 from pandora.core_fields import COUNTRY_CODE, DATE, DAY_OF_WEEK, DAY_OF_YEAR, GEO_CODE
 

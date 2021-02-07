@@ -4,11 +4,11 @@ from logging import basicConfig, INFO
 
 import pandas as pd
 
-import data.age_distribution as age_dist
-import data.oxford_data as oxford
-import data.population as population
-import data.temperatures as temperatures
-from data import geo, continent, country_code, working_day
+import pandora.data.age_distribution as age_dist
+import pandora.data.oxford_data as oxford
+import pandora.data.population as population
+import pandora.data.temperatures as temperatures
+from pandora.data import geo, continent, country_code, working_day
 from pandora import loader
 from pandora.core_fields import DATE, COUNTRY_CODE
 

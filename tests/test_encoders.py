@@ -4,8 +4,8 @@ from logging import basicConfig, INFO
 
 import pandas as pd
 
-import data.population as population
-from data import geo, country_code
+import pandora.data.population as population
+from pandora.data import geo, country_code
 from pandora import imputer, loader, encoders
 from pandora.core_fields import COUNTRY_NAME, DAY_OF_WEEK
 
